@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2021 NetFoundry. All rights reserved.
+  -->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="560dip"
+    android:background="@drawable/modal">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/SetupMFATitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/russo_one"
+            android:gravity="center"
+            android:text="Recovery Codes"
+            android:textAlignment="center"
+            android:textColor="#000000"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/SetupMFASubTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Keep these codes somewhere safe"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:textColor="#555555"
+            android:textSize="14sp" />
+
+        <GridView android:id="@+id/RecoverList"
+            android:layout_width="match_parent"
+            android:layout_height="400dip"
+            android:numColumns="3"
+            android:gravity="center"
+            android:stretchMode="columnWidth" >
+        </GridView>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:maxHeight="60dp"
+            android:layout_weight="5"
+            android:layout_marginStart="36dip"
+            android:layout_marginEnd="36dip"
+            android:layout_marginTop="10dip"
+            android:background="@drawable/button"
+            android:textColor="#fffFFF"
+            android:text="Authenticate"></Button>
+
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

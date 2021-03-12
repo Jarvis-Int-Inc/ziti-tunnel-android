@@ -503,5 +503,7 @@
     <include android:id="@+id/LogPage" layout="@layout/log" android:x="600dp" android:visibility="gone"/>
     <include android:id="@+id/IdentityPage" layout="@layout/identities" android:x="600dp" android:visibility="gone"/>
     <include android:id="@+id/IdentityDetailsPage" layout="@layout/identity" android:x="600dp" android:visibility="gone"/>
-
+    <include android:id="@+id/MFASetup" layout="@layout/mfa" android:visibility="gone" android:x="600dp"/>
+    <include android:id="@+id/MFAAuthentciate" layout="@layout/authenticate" android:visibility="gone" android:x="600dp"/>
+    <include android:id="@+id/MFRecovery" layout="@layout/recovery" android:visibility="visible" android:x="600dp"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
