@@ -696,6 +696,9 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
                 else -> super.onKeyUp(keyCode, keyEvent)
             }
         }
+        MFAAuthenticate.CloseAuthButton.setOnClickListener {
+            hideModal()
+        }
 
         // MFA Setup and Auth Button Actions
         IdentityDetailsPage.MFASwitch.setOnCheckedChangeListener { _, state ->
