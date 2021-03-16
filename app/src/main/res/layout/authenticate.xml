@@ -7,10 +7,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="280dip"
+    android:layout_height="240dip"
+    android:layout_gravity="center"
+    android:layout_margin="20dp"
     android:background="@drawable/darkmodal">
 
     <LinearLayout
+        android:id="@+id/MainAuthArea"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -32,37 +35,168 @@
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
+        <LinearLayout
+            android:id="@+id/CodeArea"
+            android:layout_width="match_parent"
+            android:layout_height="80dip"
+            android:weightSum="8"
+            android:visibility="gone"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/Code1"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="1dip"
+                android:layout_weight="1"
+                android:background="@drawable/curvedform"
+                android:ems="10"
+                android:inputType="number"
+                android:shadowRadius="7"
+                android:maxLength="1"
+                android:selectAllOnFocus="true"
+                android:gravity="center"
+                android:textAlignment="gravity"
+                android:textSize="30sp" />
+
+            <EditText
+                android:id="@+id/Code2"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/curvedform"
+                android:ems="10"
+                android:shadowRadius="7"
+                android:layout_marginEnd="1dip"
+                android:inputType="number"
+                android:maxLength="1"
+                android:selectAllOnFocus="true"
+                android:gravity="center"
+                android:textAlignment="gravity"
+                android:textSize="30sp" />
+
+            <EditText
+                android:id="@+id/Code3"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/curvedform"
+                android:ems="10"
+                android:shadowRadius="7"
+                android:layout_marginEnd="1dip"
+                android:inputType="number"
+                android:maxLength="1"
+                android:selectAllOnFocus="true"
+                android:gravity="center"
+                android:textAlignment="gravity"
+                android:textSize="30sp" />
+
+            <EditText
+                android:id="@+id/Code4"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/curvedform"
+                android:ems="10"
+                android:shadowRadius="7"
+                android:layout_marginEnd="1dip"
+                android:inputType="number"
+                android:maxLength="1"
+                android:selectAllOnFocus="true"
+                android:gravity="center"
+                android:textAlignment="gravity"
+                android:textSize="30sp" />
+
+            <EditText
+                android:id="@+id/Code5"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/curvedform"
+                android:ems="10"
+                android:shadowRadius="7"
+                android:layout_marginEnd="1dip"
+                android:inputType="number"
+                android:maxLength="1"
+                android:selectAllOnFocus="true"
+                android:gravity="center"
+                android:textAlignment="gravity"
+                android:textSize="30sp" />
+
+            <EditText
+                android:id="@+id/Code6"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/curvedform"
+                android:layout_marginEnd="1dip"
+                android:ems="10"
+                android:shadowRadius="7"
+                android:inputType="number"
+                android:maxLength="1"
+                android:selectAllOnFocus="true"
+                android:gravity="center"
+                android:textAlignment="gravity"
+                android:textSize="30sp" />
+
+            <EditText
+                android:id="@+id/Code7"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/curvedform"
+                android:layout_marginEnd="1dip"
+                android:ems="10"
+                android:shadowRadius="7"
+                android:inputType="number"
+                android:maxLength="1"
+                android:selectAllOnFocus="true"
+                android:gravity="center"
+                android:textAlignment="gravity"
+                android:textSize="30sp" />
+
+            <EditText
+                android:id="@+id/Code8"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/curvedform"
+                android:ems="10"
+                android:shadowRadius="7"
+                android:inputType="number"
+                android:maxLength="1"
+                android:selectAllOnFocus="true"
+                android:gravity="center"
+                android:textAlignment="gravity"
+                android:textSize="30sp" />
+
+        </LinearLayout>
+
             <LinearLayout
+                android:id="@+id/AuthArea"
                 android:layout_width="match_parent"
                 android:layout_height="80dip"
+                android:weightSum="6"
                 android:orientation="horizontal">
 
                 <EditText
-                    android:id="@+id/Setup1"
+                    android:id="@+id/Auth1"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginEnd="2dip"
                     android:layout_weight="1"
                     android:background="@drawable/curvedform"
                     android:ems="10"
+                    android:maxLength="1"
+                    android:selectAllOnFocus="true"
+                    android:gravity="center"
+                    android:textAlignment="gravity"
                     android:inputType="number"
                     android:shadowRadius="7"
                     android:textSize="36sp" />
 
                 <EditText
-                    android:id="@+id/Setup2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/curvedform"
-                    android:ems="10"
-                    android:shadowRadius="7"
-                    android:layout_marginEnd="2dip"
-                    android:inputType="number"
-                    android:textSize="36sp" />
-
-                <EditText
-                    android:id="@+id/Setup3"
+                    android:id="@+id/Auth2"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -70,11 +204,47 @@
                     android:ems="10"
                     android:shadowRadius="7"
                     android:layout_marginEnd="2dip"
+                    android:gravity="center"
+                    android:textAlignment="gravity"
                     android:inputType="number"
+                    android:maxLength="1"
+                    android:selectAllOnFocus="true"
                     android:textSize="36sp" />
 
                 <EditText
-                    android:id="@+id/Setup4"
+                    android:id="@+id/Auth3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/curvedform"
+                    android:ems="10"
+                    android:shadowRadius="7"
+                    android:layout_marginEnd="2dip"
+                    android:gravity="center"
+                    android:textAlignment="gravity"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:selectAllOnFocus="true"
+                    android:textSize="36sp" />
+
+                <EditText
+                    android:id="@+id/Auth4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/curvedform"
+                    android:ems="10"
+                    android:shadowRadius="7"
+                    android:layout_marginEnd="2dip"
+                    android:gravity="center"
+                    android:textAlignment="gravity"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:selectAllOnFocus="true"
+                    android:textSize="36sp" />
+
+                <EditText
+                    android:id="@+id/Auth5"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -83,22 +253,14 @@
                     android:shadowRadius="7"
                     android:layout_marginEnd="2dip"
                     android:inputType="number"
+                    android:gravity="center"
+                    android:textAlignment="gravity"
+                    android:maxLength="1"
+                    android:selectAllOnFocus="true"
                     android:textSize="36sp" />
 
                 <EditText
-                    android:id="@+id/Setup5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/curvedform"
-                    android:ems="10"
-                    android:shadowRadius="7"
-                    android:layout_marginEnd="2dip"
-                    android:inputType="number"
-                    android:textSize="36sp" />
-
-                <EditText
-                    android:id="@+id/Setup6"
+                    android:id="@+id/Auth6"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -106,20 +268,48 @@
                     android:ems="10"
                     android:shadowRadius="7"
                     android:inputType="number"
+                    android:gravity="center"
+                    android:textAlignment="gravity"
+                    android:maxLength="1"
+                    android:selectAllOnFocus="true"
                     android:textSize="36sp" />
 
             </LinearLayout>
 
-            <Button
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:maxHeight="60dp"
-                android:layout_marginStart="36dip"
-                android:layout_marginEnd="36dip"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="10dip"
-                android:background="@drawable/button"
-                android:textColor="#fffFFF"
-                android:text="Authenticate"></Button>
+                android:gravity="center"
+                android:orientation="horizontal">
+                <Button
+                    android:id="@+id/ToggleCodeButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="20dp"
+                    android:background="@drawable/secondary"
+                    android:textColor="#fffFFF"
+                    android:text="Use Code"></Button>
+                <Button
+                    android:id="@+id/AuthButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dip"
+                    android:background="@drawable/button"
+                    android:textColor="#fffFFF"
+                    android:text="Authenticate"></Button>
+            </LinearLayout>
     </LinearLayout>
+    <ImageView
+        android:id="@+id/CloseAuthButton"
+        android:layout_width="20dip"
+        android:layout_height="20dip"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintEnd_toEndOf="@+id/MainAuthArea"
+        app:layout_constraintTop_toTopOf="@+id/MainAuthArea"
+        app:srcCompat="@drawable/close" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

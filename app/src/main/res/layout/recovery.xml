@@ -5,11 +5,14 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_gravity="center_vertical"
+    android:layout_margin="20dp"
     android:layout_width="match_parent"
-    android:layout_height="560dip"
+    android:layout_height="460dip"
     android:background="@drawable/modal">
 
     <LinearLayout
+        android:id="@+id/RecovertMain"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -41,15 +44,16 @@
             android:textColor="#555555"
             android:textSize="14sp" />
 
-        <GridView android:id="@+id/RecoverList"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="400dip"
-            android:numColumns="3"
-            android:gravity="center"
-            android:stretchMode="columnWidth" >
-        </GridView>
+            android:layout_height="300dip"
+            android:orientation="vertical"
+            android:id="@+id/RecoveryCodeList">
+
+        </LinearLayout>
 
         <Button
+            android:id="@+id/GenerateCodesButton"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:maxHeight="60dp"
@@ -59,9 +63,19 @@
             android:layout_marginTop="10dip"
             android:background="@drawable/button"
             android:textColor="#fffFFF"
-            android:text="Authenticate"></Button>
+            android:text="Generate New"></Button>
 
 
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/CloseCodesButton"
+        android:layout_width="20dip"
+        android:layout_height="20dip"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintEnd_toEndOf="@+id/RecovertMain"
+        app:layout_constraintTop_toTopOf="@+id/RecovertMain"
+        app:srcCompat="@drawable/hide" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

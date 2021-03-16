@@ -10,66 +10,57 @@
     android:layout_height="match_parent"
     android:background="@drawable/background">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/BackIdentityDetailsButton"
+    <LinearLayout
+        android:layout_gravity="center"
         android:layout_width="match_parent"
-        android:clickable="true"
-        android:layout_height="60dp"
-        android:background="@color/background">
+        android:weightSum="10"
+        android:layout_height="60dip">
 
-        <ImageView
-            android:layout_width="12dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="16dp"
-            android:background="@drawable/back"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"></ImageView>
+        <LinearLayout
+            android:id="@+id/BackIdentityDetailsButton"
+            android:gravity="center"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:layout_width="wrap_content">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:lineHeight="20dp"
-            android:paddingLeft="36dp"
-            android:text="@string/back"
-            android:textColor="@color/link"
-            android:textSize="16dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="20dp"
+                android:background="@drawable/back"></ImageView>
 
-        </TextView>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="@color/background">
-
-        <Switch
-            android:id="@+id/IdOnOffSwitch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_marginRight="10dp"
-            android:visibility="visible"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:lineHeight="20dp"
+                android:paddingLeft="10dp"
+                android:text="@string/back"
+                android:textColor="@color/link"
+                android:textSize="16dp"></TextView>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/IdIdentityDetailName"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
             android:fontFamily="@font/russo_one"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingLeft="10dip"
+            android:paddingEnd="10dip"
             android:singleLine="true"
-            android:paddingLeft="18dp"
+            android:text="identity"
+            android:textAlignment="center"
             android:textColor="@color/title"
-            android:textSize="26dp"
-            android:layout_marginEnd="75dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"></TextView>
+            android:textSize="18dp"
+            android:layout_weight="6"></TextView>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <Switch
+            android:id="@+id/IdOnOffSwitch"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:gravity="center"
+            android:visibility="visible"
+            android:layout_weight="2" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -79,7 +70,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="40dp"
             android:gravity="center"
             android:orientation="horizontal"
             android:background="@color/background">
@@ -111,7 +102,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="40dp"
             android:gravity="center"
             android:orientation="horizontal"
             android:background="@color/background">
@@ -143,7 +134,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="40dp"
             android:gravity="center"
             android:orientation="horizontal"
             android:background="@color/background">
@@ -155,8 +146,6 @@
                 android:text="@string/enrollment"
                 android:textColor="@color/title"
                 android:textSize="18dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 tools:layout_editor_absoluteX="0dp">
             </TextView>
             <TextView
@@ -173,53 +162,161 @@
             </TextView>
         </LinearLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:weightSum="10"
+            android:background="@color/background">
+            <TextView
+                android:layout_height="22dp"
+                android:layout_width="wrap_content"
+                android:layout_weight="6"
+                android:lineHeight="22dp"
+                android:paddingLeft="18dp"
+                android:text="@string/mfa"
+                android:textColor="@color/title"
+                android:textSize="18dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:layout_editor_absoluteX="0dp">
+            </TextView>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="20dip"
+                android:gravity="right"
+                android:layout_gravity="center"
+                android:orientation="horizontal"
+                android:layout_weight="2">
+                <ImageView
+                    android:id="@+id/ShowRecoverButton"
+                    android:layout_width="20dip"
+                    android:layout_height="20dip"
+                    android:src="@drawable/recovery"
+                    android:foregroundGravity="right"
+                    ></ImageView>
+                <ImageView
+                    android:id="@+id/MfaAuthButton"
+                    android:layout_marginStart="5dip"
+                    android:layout_marginEnd="5dip"
+                    android:layout_width="20dip"
+                    android:layout_height="20dip"
+                    android:src="@drawable/mfaoff"
+                    android:foregroundGravity="right"
+                    ></ImageView>
+            </LinearLayout>
+            <Switch
+                android:id="@+id/MFASwitch"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_marginEnd="18dp"
+                android:gravity="center"
+                android:visibility="visible"
+                android:layout_weight="2" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dip"
+            android:orientation="horizontal"
+            android:layout_gravity="center">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="60dp"
-                android:layout_marginStart="10dp"
-                android:fontFamily="@font/russo_one"
-                android:paddingLeft="18dp"
-                android:paddingTop="10dp"
-                android:text="@string/services"
-                android:textColor="@color/title"
-                android:textSize="26dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"></TextView>
-
-            <Button
-                android:id="@+id/IdDetailForgetButton"
+                android:id="@+id/ServiceTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="10dp"
-                android:background="@android:color/transparent"
-                android:text="@string/forget"
+                android:fontFamily="@font/russo_one"
+                android:paddingLeft="20dp"
+                android:gravity="center_vertical"
+                android:text="@string/services"
                 android:textColor="@color/title"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"></Button>
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:textSize="18dp"></TextView>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="right">
 
-        <ScrollView
-            android:layout_width="fill_parent"
-            android:minHeight="180dp"
-            android:layout_height="wrap_content">
-            <LinearLayout
-                android:id="@+id/IdDetailServicesList"
+                <EditText
+                    android:id="@+id/SearchFor"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dip"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="5dp"
+                    android:paddingTop="5dip"
+                    android:gravity="left"
+                    android:inputType="text"
+                    android:singleLine="true"
+                    android:paddingStart="20dip"
+                    android:paddingEnd="20dip"
+                    android:maxLines="1"
+                    android:paddingRight="50dp"
+                    android:text=""
+                    android:background="@drawable/searchbox"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/title"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"></EditText>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="5dp"
+                    android:gravity="center_vertical"
+                    android:alpha="0.3"
+                    android:text="@string/search"
+                    android:textColor="@color/title"
+                    android:textSize="14dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"></TextView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        </LinearLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/darkmodal"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp">
+
+            <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
-                android:orientation="vertical">
-            </LinearLayout>
-        </ScrollView>
+                android:minHeight="100dip"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
+                <LinearLayout
+                    android:id="@+id/IdDetailServicesList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
+                    android:orientation="vertical"></LinearLayout>
+            </ScrollView>
 
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-
+        <Button
+            android:id="@+id/IdDetailForgetButton"
+            android:layout_width="match_parent"
+            android:layout_height="40dip"
+            android:background="@android:color/transparent"
+            android:text="@string/forget"
+            android:textColor="@color/title"></Button>
 
     </LinearLayout>
 </LinearLayout>

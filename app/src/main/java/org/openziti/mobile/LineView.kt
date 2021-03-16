@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.widget.RelativeLayout
 import android.widget.Toast
 import kotlinx.android.synthetic.main.line.view.*
+import org.openziti.api.Service
 
 /**
  * Service List Line Items

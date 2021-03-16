@@ -7,10 +7,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="680dip"
+    android:layout_gravity="center"
+    android:layout_margin="20dp"
     android:background="@drawable/modal">
 
     <LinearLayout
+        android:id="@+id/MainSetupArea"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -45,8 +48,20 @@
         <ImageView
             android:id="@+id/QRCode"
             android:layout_width="280dip"
-            android:layout_height="280dip"
-            app:srcCompat="@drawable/qrcode" />
+            android:layout_height="wrap_content"
+            android:src="@drawable/qrcode" />
+
+        <TextView
+            android:id="@+id/Manual"
+            android:layout_width="280dip"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/open_sans"
+            android:gravity="center"
+            android:text="ManualCode"
+            android:textAlignment="gravity"
+            android:visibility="gone"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:orientation="horizontal"
@@ -91,7 +106,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="200dip"
             android:background="@drawable/darkmodal">
 
             <LinearLayout
@@ -129,8 +144,12 @@
                         android:layout_weight="1"
                         android:background="@drawable/curvedform"
                         android:ems="10"
+                        android:gravity="center"
+                        android:textAlignment="gravity"
+                        android:maxLength="1"
                         android:inputType="number"
                         android:shadowRadius="7"
+                        android:selectAllOnFocus="true"
                         android:textSize="36sp" />
 
                     <EditText
@@ -142,7 +161,11 @@
                         android:ems="10"
                         android:shadowRadius="7"
                         android:layout_marginEnd="2dip"
+                        android:gravity="center"
+                        android:maxLength="1"
+                        android:textAlignment="gravity"
                         android:inputType="number"
+                        android:selectAllOnFocus="true"
                         android:textSize="36sp" />
 
                     <EditText
@@ -153,8 +176,12 @@
                         android:background="@drawable/curvedform"
                         android:ems="10"
                         android:shadowRadius="7"
+                        android:maxLength="1"
                         android:layout_marginEnd="2dip"
+                        android:gravity="center"
+                        android:textAlignment="gravity"
                         android:inputType="number"
+                        android:selectAllOnFocus="true"
                         android:textSize="36sp" />
 
                     <EditText
@@ -164,9 +191,13 @@
                         android:layout_weight="1"
                         android:background="@drawable/curvedform"
                         android:ems="10"
+                        android:maxLength="1"
                         android:shadowRadius="7"
                         android:layout_marginEnd="2dip"
+                        android:gravity="center"
+                        android:textAlignment="gravity"
                         android:inputType="number"
+                        android:selectAllOnFocus="true"
                         android:textSize="36sp" />
 
                     <EditText
@@ -178,7 +209,11 @@
                         android:ems="10"
                         android:shadowRadius="7"
                         android:layout_marginEnd="2dip"
+                        android:maxLength="1"
+                        android:gravity="center"
+                        android:textAlignment="gravity"
                         android:inputType="number"
+                        android:selectAllOnFocus="true"
                         android:textSize="36sp" />
 
                     <EditText
@@ -189,15 +224,19 @@
                         android:background="@drawable/curvedform"
                         android:ems="10"
                         android:shadowRadius="7"
+                        android:gravity="center"
+                        android:textAlignment="gravity"
+                        android:maxLength="1"
                         android:inputType="number"
+                        android:selectAllOnFocus="true"
                         android:textSize="36sp" />
 
                 </LinearLayout>
 
                 <Button
+                    android:id="@+id/AuthSetupButton"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:maxHeight="60dp"
+                    android:layout_height="40dp"
                     android:layout_marginStart="36dip"
                     android:layout_marginEnd="36dip"
                     android:layout_marginTop="10dip"
@@ -212,4 +251,14 @@
 
 
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/CloseSetupButton"
+        android:layout_width="20dip"
+        android:layout_height="20dip"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintEnd_toEndOf="@+id/MainSetupArea"
+        app:layout_constraintTop_toTopOf="@+id/MainSetupArea"
+        app:srcCompat="@drawable/hide" />
 </androidx.constraintlayout.widget.ConstraintLayout>

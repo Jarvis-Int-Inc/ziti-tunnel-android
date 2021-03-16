@@ -503,7 +503,21 @@
     <include android:id="@+id/LogPage" layout="@layout/log" android:x="600dp" android:visibility="gone"/>
     <include android:id="@+id/IdentityPage" layout="@layout/identities" android:x="600dp" android:visibility="gone"/>
     <include android:id="@+id/IdentityDetailsPage" layout="@layout/identity" android:x="600dp" android:visibility="gone"/>
-    <include android:id="@+id/MFASetup" layout="@layout/mfa" android:visibility="gone" android:x="600dp"/>
-    <include android:id="@+id/MFAAuthentciate" layout="@layout/authenticate" android:visibility="gone" android:x="600dp"/>
-    <include android:id="@+id/MFRecovery" layout="@layout/recovery" android:visibility="visible" android:x="600dp"/>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/ModalBg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/modalbg"
+        android:clickable="false"
+        android:visibility="gone"
+        android:alpha="0">
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <include android:id="@+id/MFASetup" layout="@layout/mfa" android:visibility="gone"/>
+    <include android:id="@+id/MFAAuthenticate" layout="@layout/authenticate" android:visibility="gone"/>
+    <include android:id="@+id/MFARecovery" layout="@layout/recovery" android:visibility="gone"/>
+    <include android:id="@+id/Growler" layout="@layout/growler" android:visibility="gone" />
+    <include android:id="@+id/DetailModal" layout="@layout/detailsmodal" android:visibility="gone" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

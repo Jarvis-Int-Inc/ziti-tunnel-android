@@ -12,9 +12,11 @@
     <string name="yours">Your Identities</string>
     <string name="details">Details</string>
     <string name="enrollment">Enrollment</string>
+    <string name="mfa">Multi Factor Auth</string>
     <string name="name">Ziti Mobile Edge</string>
     <string name="platform">For Android</string>
     <string name="stop">Stop</string>
+    <string name="search">search</string>
 
     <!-- Menus & Generic Navigation -->
     <string name="dashboard">Dashboard</string>

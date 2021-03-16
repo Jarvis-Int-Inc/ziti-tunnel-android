@@ -15,6 +15,7 @@
     <color name="subTitle">#638190</color>
     <color name="title">#FFFFFF</color>
     <color name="areaTitle">#262A41</color>
+    <color name="notes">#cccccc</color>
     <color name="label">#0F0F23</color>
     <color name="background">#0F0F23</color>
     <color name="link">#3c69b3</color>

@@ -4,20 +4,27 @@
 
 package org.openziti.mobile
 
+import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.app.Activity
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.inputmethodservice.Keyboard
 import android.net.Uri
 import android.net.VpnService
 import android.os.*
+import android.text.Editable
+import android.text.TextWatcher
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.DecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -26,18 +33,29 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.android.synthetic.main.about.*
 import kotlinx.android.synthetic.main.advanced.*
+import kotlinx.android.synthetic.main.authenticate.view.*
 import kotlinx.android.synthetic.main.configuration.*
 import kotlinx.android.synthetic.main.dashboard.*
+import kotlinx.android.synthetic.main.dashboard.view.*
+import kotlinx.android.synthetic.main.detailsmodal.view.*
+import kotlinx.android.synthetic.main.growler.view.*
 import kotlinx.android.synthetic.main.identities.*
 import kotlinx.android.synthetic.main.identity.*
+import kotlinx.android.synthetic.main.identity.view.*
 import kotlinx.android.synthetic.main.identityitem.view.*
+import kotlinx.android.synthetic.main.line.*
+import kotlinx.android.synthetic.main.line.view.*
 import kotlinx.android.synthetic.main.log.*
 import kotlinx.android.synthetic.main.logs.*
+import kotlinx.android.synthetic.main.mfa.view.*
+import kotlinx.android.synthetic.main.recovery.view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.openziti.ZitiContext
 import org.openziti.android.Ziti
+import org.openziti.api.Service
+import org.openziti.identity.Identity
 import java.util.*
 
 
@@ -76,7 +94,7 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
         }
     }
 
-    fun launchUrl(url:String) {
+    fun launchUrl(url: String) {
         val openURL = Intent(Intent.ACTION_VIEW)
         openURL.data = Uri.parse(url)
         startActivity(openURL)
@@ -87,6 +105,9 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
     var offScreenY = 0
     var openY = 0
     var isOpen = false
+    var isModal = false
+    lateinit var modal:View
+    lateinit var _identity:Identity
 
     fun getScreenWidth(): Int {
         return Resources.getSystem().displayMetrics.widthPixels
@@ -103,7 +124,7 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
         var scaleX = ObjectAnimator.ofFloat(MainArea, "scaleX", .9f, 1.0f).setDuration(duration.toLong())
         var fader = ObjectAnimator.ofFloat(FrameArea, "alpha", 1f, 0f).setDuration(duration.toLong())
 
-        var animateTo = ObjectAnimator.ofFloat( MainArea,"translationX",posTo.toFloat(), 0f ).setDuration(duration.toLong())
+        var animateTo = ObjectAnimator.ofFloat(MainArea, "translationX", posTo.toFloat(), 0f).setDuration(duration.toLong())
         fader.interpolator = DecelerateInterpolator()
         animateTo.interpolator = DecelerateInterpolator()
         scaleY.interpolator = DecelerateInterpolator()
@@ -118,37 +139,40 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
             scaleX = ObjectAnimator.ofFloat(MainArea, "scaleX", 1.0f, 0.9f).setDuration(duration.toLong())
             fader = ObjectAnimator.ofFloat(FrameArea, "alpha", 0f, 1f).setDuration(duration.toLong())
         }
-        animatorSet.play( animateTo ).with(scaleX).with(scaleY).with(fader)
+        animatorSet.play(animateTo).with(scaleX).with(scaleY).with(fader)
         animatorSet.start()
         isMenuOpen = !isMenuOpen
     }
 
-    private fun toggleSlide(view:View, newState:String) {
+    private fun toggleSlide(view: View, newState: String) {
         try {
             val inputManager:InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             inputManager.hideSoftInputFromWindow(currentFocus!!.windowToken, InputMethodManager.SHOW_FORCED)
-        } catch (e:Exception) {}
+        } catch (e: Exception) {}
         var fader = ObjectAnimator.ofFloat(view, "alpha", 0f, 1f).setDuration(duration.toLong())
-        var animateTo = ObjectAnimator.ofFloat( view,"translationX", offScreenX.toFloat(), 0f ).setDuration(duration.toLong())
+        var animateTo = ObjectAnimator.ofFloat(view, "translationX", offScreenX.toFloat(), 0f).setDuration(duration.toLong())
         fader.interpolator = DecelerateInterpolator()
         animateTo.interpolator = DecelerateInterpolator()
         state = newState
         if (view.x==0f) {
             fader = ObjectAnimator.ofFloat(view, "alpha", 1f, 0f).setDuration(duration.toLong())
-            animateTo = ObjectAnimator.ofFloat( view,"translationX", 0f, offScreenX.toFloat() ).setDuration(duration.toLong())
+            animateTo = ObjectAnimator.ofFloat(view, "translationX", 0f, offScreenX.toFloat()).setDuration(duration.toLong())
         }
         var animatorSet = AnimatorSet()
-        animatorSet.play( animateTo ).with(fader)
+        animatorSet.play(animateTo).with(fader)
         animatorSet.start()
     }
 
     override fun onBackPressed() {
-        if (state=="menu") toggleMenu()
-        else if (state=="about") toggleSlide(AboutPage, "menu")
-        else if (state=="advanced") toggleSlide(AdvancedPage, "menu")
-        else if (state=="config") toggleSlide(ConfigPage, "advanced")
-        else if (state=="identity") toggleSlide(ConfigPage, "identities")
-        else super.onBackPressed()
+        if (isModal) hideModal()
+        else {
+            if (state=="menu") toggleMenu()
+            else if (state=="about") toggleSlide(AboutPage, "menu")
+            else if (state=="advanced") toggleSlide(AdvancedPage, "menu")
+            else if (state=="config") toggleSlide(ConfigPage, "advanced")
+            else if (state=="identity") toggleSlide(ConfigPage, "identities")
+            else super.onBackPressed()
+        }
     }
 
     private var startPosition = 0f
@@ -343,7 +367,7 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("Logs", LogDetails.text.toString())
             clipboard.setPrimaryClip(clip)
-            Toast.makeText(applicationContext,"Log has been copied to your clipboard",Toast.LENGTH_LONG).show()
+            Toast.makeText(applicationContext, "Log has been copied to your clipboard", Toast.LENGTH_LONG).show()
         }
 
         // Advanced Buttons
@@ -367,6 +391,464 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
         //    toggleSlide(IdentityPage, "identities")
         //}
 
+        DetailModal.CloseDetailsButton.setOnClickListener {
+            hideModal()
+        }
+        ModalBg.setOnClickListener {
+            hideModal()
+        }
+        Growler.CloseGrowlerButton.setOnClickListener {
+            hideGrowler();
+        }
+
+        // MFA Recovery Actions
+        IdentityDetailsPage.ShowRecoverButton.setOnClickListener {
+            // Eugene - This should pass the string array of recovery codes
+            // need to assign and get _identity somehow or something
+            val codes = Array(20) { i -> (i * i).toString() }
+            showRecoveryCodes(codes)
+        }
+        MFARecovery.GenerateCodesButton.setOnClickListener {
+            // Eugene - Generate new codes and set them
+        }
+        MFARecovery.setOnClickListener {
+            hideModal()
+        }
+
+        // MFA Authenticate
+        IdentityDetailsPage.MfaAuthButton.setOnClickListener {
+            MFAAuthenticate.Auth1?.setText("");
+            MFAAuthenticate.Auth2?.setText("");
+            MFAAuthenticate.Auth3?.setText("");
+            MFAAuthenticate.Auth4?.setText("");
+            MFAAuthenticate.Auth5.setText("");
+            MFAAuthenticate.Auth6.setText("");
+            MFAAuthenticate.Code1.setText("");
+            MFAAuthenticate.Code2.setText("");
+            MFAAuthenticate.Code3.setText("");
+            MFAAuthenticate.Code4.setText("");
+            MFAAuthenticate.Code5.setText("");
+            MFAAuthenticate.Code6.setText("");
+            MFAAuthenticate.Code7.setText("");
+            MFAAuthenticate.Code8.setText("");
+            MFAAuthenticate.CodeArea.visibility = View.GONE
+            MFAAuthenticate.AuthArea.visibility = View.VISIBLE
+            MFAAuthenticate.ToggleCodeButton.setText("Use Code")
+            showModal(MFAAuthenticate)
+        }
+        MFAAuthenticate.ToggleCodeButton.setOnClickListener {
+            if (MFAAuthenticate.AuthArea.visibility==View.VISIBLE) {
+                MFAAuthenticate.CodeArea.visibility = View.VISIBLE
+                MFAAuthenticate.AuthArea.visibility = View.GONE
+                MFAAuthenticate.ToggleCodeButton.setText("Use Auth")
+            } else {
+                MFAAuthenticate.CodeArea.visibility = View.GONE
+                MFAAuthenticate.AuthArea.visibility = View.VISIBLE
+                MFAAuthenticate.ToggleCodeButton.setText("Use Code")
+            }
+        }
+        MFAAuthenticate.AuthButton.setOnClickListener {
+            Authenticate()
+        }
+        MFAAuthenticate.Auth1.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
+                if (MFAAuthenticate.Auth1.text.trim().length == 1) {
+                    MFAAuthenticate.Auth2.requestFocus()
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable) {}
+            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
+        })
+        MFAAuthenticate.Auth1.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    Authenticate()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+        MFAAuthenticate.Auth2.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
+                if (MFAAuthenticate.Auth2.text.trim().length == 1) {
+                    MFAAuthenticate.Auth3.requestFocus()
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable) {}
+            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
+        })
+        MFAAuthenticate.Auth2.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    Authenticate()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+        MFAAuthenticate.Auth3.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
+                if (MFAAuthenticate.Auth3.text.trim().length == 1) {
+                    MFAAuthenticate.Auth4.requestFocus()
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable) {}
+            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
+        })
+        MFAAuthenticate.Auth3.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    Authenticate()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+        MFAAuthenticate.Auth4.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
+                if (MFAAuthenticate.Auth4.text.trim().length == 1) {
+                    MFAAuthenticate.Auth5.requestFocus()
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable) {}
+            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
+        })
+        MFAAuthenticate.Auth4.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    Authenticate()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+        MFAAuthenticate.Auth5.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
+                if (MFAAuthenticate.Auth5.text.trim().length == 1) {
+                    MFAAuthenticate.Auth6.requestFocus()
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable) {}
+            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
+        })
+        MFAAuthenticate.Auth5.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    Authenticate()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+        MFAAuthenticate.Auth6.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    Authenticate()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+        MFAAuthenticate.Code1.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
+                if (MFAAuthenticate.Code1.text.trim().length == 1) {
+                    MFAAuthenticate.Code2.requestFocus()
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable) {}
+            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
+        })
+        MFAAuthenticate.Code1.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    Authenticate()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+        MFAAuthenticate.Code2.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
+                if (MFAAuthenticate.Code2.text.trim().length == 1) {
+                    MFAAuthenticate.Code3.requestFocus()
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable) {}
+            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
+        })
+        MFAAuthenticate.Code2.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    Authenticate()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+        MFAAuthenticate.Code3.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
+                if (MFAAuthenticate.Code3.text.trim().length == 1) {
+                    MFAAuthenticate.Code4.requestFocus()
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable) {}
+            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
+        })
+        MFAAuthenticate.Code3.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    Authenticate()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+        MFAAuthenticate.Code4.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
+                if (MFAAuthenticate.Code4.text.trim().length == 1) {
+                    MFAAuthenticate.Code5.requestFocus()
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable) {}
+            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
+        })
+        MFAAuthenticate.Code4.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    Authenticate()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+        MFAAuthenticate.Code5.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
+                if (MFAAuthenticate.Code5.text.trim().length == 1) {
+                    MFAAuthenticate.Code6.requestFocus()
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable) {}
+            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
+        })
+        MFAAuthenticate.Code5.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    Authenticate()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+        MFAAuthenticate.Code6.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
+                if (MFAAuthenticate.Code6.text.trim().length == 1) {
+                    MFAAuthenticate.Code7.requestFocus()
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable) {}
+            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
+        })
+        MFAAuthenticate.Code6.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    Authenticate()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+        MFAAuthenticate.Code7.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
+                if (MFAAuthenticate.Code7.text.trim().length == 1) {
+                    MFAAuthenticate.Code8.requestFocus()
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable) {}
+            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
+        })
+        MFAAuthenticate.Code7.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    Authenticate()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+        MFAAuthenticate.Code8.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    Authenticate()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+
+        // MFA Setup and Auth Button Actions
+        IdentityDetailsPage.MFASwitch.setOnCheckedChangeListener { _, state ->
+            if (state) {
+                // Eugene - I need these filled out so I need _identity
+                // MFASetup.QRCode.src = I need to generate it from the url so I can do this if I have the Url
+                    // MFASetup.Manual.text = _identity.mfa.manualCode
+                        // MFASetup.SetupMFASubTitle.text = _identity.name
+                MFASetup.Setup1.setText("")
+                MFASetup.Setup2.setText("")
+                MFASetup.Setup3.setText("")
+                MFASetup.Setup4.setText("")
+                MFASetup.Setup5.setText("")
+                MFASetup.Setup6.setText("")
+                MFASetup.QRCode.visibility = View.VISIBLE
+                MFASetup.Manual.visibility = View.GONE
+                MFASetup.MFACode.text = "Show Code"
+                showModal(MFASetup)
+            } else {
+                // Eugene - Turn off MFA for ID
+                growl("MFA is off, some services may not be available.")
+            }
+        }
+        MFASetup.AuthSetupButton.setOnClickListener {
+            AuthenticateAtSetup()
+        }
+        MFASetup.CloseSetupButton.setOnClickListener {
+            hideModal()
+        }
+        MFASetup.MFALink.setOnClickListener {
+            // Eugene - I need that _identity set on selected so I can have this
+            val url = "http://www.google.com" // _identity.mfa.url
+            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(browserIntent)
+        }
+        MFASetup.MFACode.setOnClickListener {
+            if (MFASetup.QRCode.visibility==View.VISIBLE) {
+                MFASetup.QRCode.visibility = View.GONE
+                MFASetup.Manual.visibility = View.VISIBLE
+                MFASetup.MFACode.text = "Show QR"
+            } else {
+                MFASetup.QRCode.visibility = View.VISIBLE
+                MFASetup.Manual.visibility = View.GONE
+                MFASetup.MFACode.text = "Show Code"
+            }
+        }
+        MFASetup.Setup1.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
+                if (MFASetup.Setup1.text.trim().length == 1) {
+                    MFASetup.Setup2.requestFocus()
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable) {}
+            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
+        })
+        MFASetup.Setup1.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    AuthenticateAtSetup()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+        MFASetup.Setup2.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
+                if (MFASetup.Setup2.text.trim().length == 1) {
+                    MFASetup.Setup3.requestFocus()
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable) {}
+            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
+        })
+        MFASetup.Setup2.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    AuthenticateAtSetup()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+        MFASetup.Setup3.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
+                if (MFASetup.Setup3.text.trim().length == 1) {
+                    MFASetup.Setup4.requestFocus()
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable) {}
+            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
+        })
+        MFASetup.Setup3.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    AuthenticateAtSetup()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+        MFASetup.Setup4.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
+                if (MFASetup.Setup4.text.trim().length == 1) {
+                    MFASetup.Setup5.requestFocus()
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable) {}
+            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
+        })
+        MFASetup.Setup4.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    AuthenticateAtSetup()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+        MFASetup.Setup5.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    AuthenticateAtSetup()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+        MFASetup.Setup5.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
+                if (MFASetup.Setup5.text.trim().length == 1) {
+                    MFASetup.Setup6.requestFocus()
+                }
+            }
+
+            override fun afterTextChanged(editable: Editable) {}
+            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
+        })
+        MFASetup.Setup6.setOnKeyListener { view, keyCode, keyEvent ->
+            return@setOnKeyListener when (keyCode) {
+                KeyEvent.KEYCODE_ENTER -> {
+                    AuthenticateAtSetup()
+                    true
+                }
+                else -> super.onKeyUp(keyCode, keyEvent)
+            }
+        }
+
+
+
         LogDetails.movementMethod = ScrollingMovementMethod()
         ApplicationLogsButton.setOnClickListener {
             LogTypeTitle.text = ("Application Logs")
@@ -386,13 +868,15 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
 
         contextViewModel = ViewModelProvider(this).get(ZitiViewModel::class.java)
         contextViewModel.contexts().observe(this, { contextList ->
-            //IdentityCards.removeAllViews()
             IdentityListing.removeAllViews()
             // create, remove cards
             var index = 0
             for (ctx in contextList) {
                 val ctxModel = ViewModelProvider(this, ZitiContextModel.Factory(ctx)).get(ctx.name(), ZitiContextModel::class.java)
                 val identityitem = IdentityItemView(this, ctxModel)
+                // Eugene - How do I get the viewing Identity so we can use it elsewhere?
+                // _identity = I Dunno
+
                 ctxModel.name().observe(this, { n ->
                     IdIdentityDetailName.text = n
                 })
@@ -408,6 +892,7 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
                 identityitem.server = ctx.controller()
 
                 identityitem.setOnClickListener {
+                    SearchFor.setText("");
                     toggleSlide(IdentityDetailsPage, "identity")
                     IdDetailsEnrollment.text = ctxModel.status().value?.toString()
                     if (ctx.getStatus() == ZitiContext.Status.Active) {
@@ -424,8 +909,11 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
                         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         val clip = ClipData.newPlainText("Network", IdDetailsNetwork.text.toString())
                         clipboard.setPrimaryClip(clip)
-                        Toast.makeText(applicationContext,IdDetailsNetwork.text.toString() + " has been copied to your clipboard",Toast.LENGTH_LONG).show()
+                        Toast.makeText(applicationContext, IdDetailsNetwork.text.toString() + " has been copied to your clipboard", Toast.LENGTH_LONG).show()
                     }
+
+                    // Eugene - When mfa is available turn it on the switch
+
                     var sCount = 0
                     ctxModel.services().observe(this, Observer { serviceList ->
                         IdDetailServicesList.removeAllViews()
@@ -433,10 +921,31 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
                             sCount++
                             val line = LineView(applicationContext)
                             line.label = service.name
-                            line.value = service.dns?.let { "${it.hostname}:${it.port}" } ?: ""
+                            line.value = service.dns?.hostname + ":" + service.dns?.port
+
+                            // Eugene - Here we need to detect if the warning icon should appear and set the message for the error
+                            // if service.warningMessage != ""
+                            // line.WarningImage.visibility = View.visible
+                            line.WarningImage.setOnClickListener {
+                                // Change to service.warning message
+                                growl("Whatever the message should pop up")
+                            }
+                            line.DetailsImage.setOnClickListener {
+                                details(service)
+                            }
                             IdDetailServicesList.addView(line)
                         }
                     })
+
+                    SearchFor.addTextChangedListener(object : TextWatcher {
+                        override fun afterTextChanged(s: Editable) {}
+                        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+                        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                            // Eugene - Not sure how to change the context serviceList above in kotlin but this should iterate the list and only show
+                            // services where name or url contains the string entered.
+                        }
+                    })
+                    ServiceTitle.text = sCount.toString() + " Services"
                     IdDetailForgetButton.setOnClickListener {
 
                         val builder = AlertDialog.Builder(this)
@@ -444,13 +953,13 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
                         builder.setMessage("Are you sure you want to delete this identity from your device?")
                         builder.setIcon(android.R.drawable.ic_dialog_alert)
 
-                        builder.setPositiveButton("Yes"){_, _ ->
+                        builder.setPositiveButton("Yes") { _, _ ->
                             ctxModel.delete()
                             Toast.makeText(applicationContext, ctx.name() + " removed", Toast.LENGTH_LONG).show()
                             toggleSlide(IdentityDetailsPage, "identities")
                         }
 
-                        builder.setNeutralButton("Cancel"){_ , _ -> }
+                        builder.setNeutralButton("Cancel") { _, _ -> }
 
                         val alertDialog: AlertDialog = builder.create()
                         alertDialog.setCancelable(false)
@@ -460,17 +969,15 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
                 IdentityListing.addView(identityitem)
                 index++
             }
-            //IdentityCount.text = index.toString()
-            if (index==0) {
-                if (OffButton!=null) {
+
+            if (index == 0) {
+                if (OffButton != null) {
                     TurnOff()
-                    //OffButton.getBackground().setAlpha(45)
                     OffButton.isClickable = false
                     StateButton.imageAlpha = 144
                 }
             } else {
-                if (OffButton!=null) {
-                    //OffButton.getBackground().setAlpha(100)
+                if (OffButton != null) {
                     OffButton.isClickable = true
                     StateButton.imageAlpha = 255
                 }
@@ -550,4 +1057,214 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
         }
     }
 
+    fun showRecoveryCodes(codes: Array<String>) {
+        for (code in codes) {
+            val lparams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            val tv = TextView(this)
+            tv.layoutParams = lparams
+            tv.text = code
+            MFARecovery.RecoveryCodeList.addView(tv)
+        }
+        showModal(MFARecovery)
+    }
+
+    fun setupMfa(identity: Identity) {
+        // Eugene I need identity.mfa object for this.
+    }
+
+    /**
+     * Fade in a View and prevent touch events under the View from firing
+     */
+    fun fadeIn(obj: View) {
+        obj.visibility = View.VISIBLE
+        var fader = ObjectAnimator.ofFloat(obj, "alpha", 0f, 1f).setDuration(duration.toLong())
+        var animateTo = ObjectAnimator.ofFloat(obj, "margin", 0f, 20f).setDuration(duration.toLong())
+        fader.interpolator = DecelerateInterpolator();
+        animateTo.interpolator = DecelerateInterpolator()
+        fader.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(animation: Animator) {
+                obj.visibility = View.VISIBLE
+            }
+
+            override fun onAnimationEnd(animation: Animator) {}
+            override fun onAnimationCancel(animation: Animator) {}
+            override fun onAnimationRepeat(animation: Animator) {}
+        })
+        var animatorSet = AnimatorSet()
+        animatorSet.play(animateTo).with(fader)
+        animatorSet.start()
+    }
+
+    /**
+     * Fade out a View and remove its touch event prevention
+     */
+    fun fadeOut(obj: View) {
+        var fader = ObjectAnimator.ofFloat(obj, "alpha", 1f, 0f).setDuration(duration.toLong())
+        var animateTo = ObjectAnimator.ofFloat(obj, "margin", 20f, 0f).setDuration(duration.toLong())
+        fader.interpolator = DecelerateInterpolator();
+        animateTo.interpolator = DecelerateInterpolator()
+        fader.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(animation: Animator) {}
+            override fun onAnimationEnd(animation: Animator) {
+                obj.visibility = View.GONE
+            }
+
+            override fun onAnimationCancel(animation: Animator) {}
+            override fun onAnimationRepeat(animation: Animator) {}
+        })
+        var animatorSet = AnimatorSet()
+        animatorSet.play(animateTo).with(fader)
+        animatorSet.start()
+    }
+
+    /**
+     * Show the growler message for 3 seconds
+     */
+    fun growl(message: String) {
+        // Jeremy animate in growler
+        Growler.Message?.text = message
+        fadeIn(Growler);
+        Handler().postDelayed({
+            runOnUiThread {
+                if (Growler.visibility == View.VISIBLE) {
+                    fadeOut(Growler)
+                }
+            }
+        }, 3000)
+    }
+
+    /**
+     * Manually hide the growler from view
+     */
+    fun hideGrowler() {
+        fadeOut(Growler)
+    }
+
+    /**
+     * Show the details for the service line
+     */
+    fun details(service: Service) {
+        // Eugene I need real values from identity
+        DetailModal.NameValue.text = service.name
+        DetailModal.UrlValue.text = service.dns?.hostname.toString()
+        DetailModal.AddressValue.text = "192.168.1.1"
+        DetailModal.PortsValue.text = service.dns?.port.toString()
+        DetailModal.ProtocolsValue.text = "TCP, UDP"
+        showModal(DetailModal)
+    }
+
+    /**
+     * Show the modal passed with a faded background and prevent touch events under the modal from occurring
+     */
+    private fun showModal(modal: View) {
+        isModal = true
+        modal.visibility = View.VISIBLE
+        modal.isClickable = true
+        ModalBg.isClickable = true;
+        var faderBg = ObjectAnimator.ofFloat(ModalBg, "alpha", 0f, .98f).setDuration(duration.toLong())
+        var fader = ObjectAnimator.ofFloat(modal, "alpha", 0f, 1f).setDuration(duration.toLong())
+        var animateTo = ObjectAnimator.ofFloat(modal, "margin", 0f, 20f).setDuration(duration.toLong())
+        fader.interpolator = DecelerateInterpolator()
+        animateTo.interpolator = DecelerateInterpolator()
+        fader.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(animation: Animator) {}
+            override fun onAnimationEnd(animation: Animator) {
+                modal.visibility = View.VISIBLE
+            }
+
+            override fun onAnimationCancel(animation: Animator) {}
+            override fun onAnimationRepeat(animation: Animator) {}
+        })
+        faderBg.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(animation: Animator) {}
+            override fun onAnimationEnd(animation: Animator) {
+                ModalBg.visibility = View.VISIBLE
+            }
+
+            override fun onAnimationCancel(animation: Animator) {}
+            override fun onAnimationRepeat(animation: Animator) {}
+        })
+        var animatorSet = AnimatorSet()
+        animatorSet.play(animateTo).with(fader).with(faderBg)
+        animatorSet.start()
+    }
+
+    /**
+     * Determine which model is open and hide it from view, remove background and remove touch stop events
+     */
+    private fun hideModal() {
+        var modal = DetailModal
+        if (MFARecovery.visibility==View.VISIBLE) modal = MFARecovery
+        if (MFASetup.visibility==View.VISIBLE) modal = MFASetup
+        if (MFAAuthenticate.visibility==View.VISIBLE) modal = MFAAuthenticate
+        isModal = false
+        isModal = true
+        ModalBg.isClickable = false;
+        modal.isClickable = false
+        var faderBg = ObjectAnimator.ofFloat(ModalBg, "alpha", .98f, 0f).setDuration(duration.toLong())
+        var fader = ObjectAnimator.ofFloat(modal, "alpha", 1f, 0f).setDuration(duration.toLong())
+        var animateTo = ObjectAnimator.ofFloat(modal, "margin", 20f, 0f).setDuration(duration.toLong())
+        fader.interpolator = DecelerateInterpolator()
+        animateTo.interpolator = DecelerateInterpolator()
+        fader.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(animation: Animator) {}
+            override fun onAnimationEnd(animation: Animator) {
+                modal.visibility = View.GONE
+            }
+
+            override fun onAnimationCancel(animation: Animator) {}
+            override fun onAnimationRepeat(animation: Animator) {}
+        })
+        fader.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(animation: Animator) {}
+            override fun onAnimationEnd(animation: Animator) {
+                ModalBg.visibility = View.GONE
+            }
+
+            override fun onAnimationCancel(animation: Animator) {}
+            override fun onAnimationRepeat(animation: Animator) {}
+        })
+        var animatorSet = AnimatorSet()
+        animatorSet.play(animateTo).with(fader).with(faderBg)
+        animatorSet.start()
+        modal.visibility = View.GONE
+    }
+
+    fun Authenticate() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(MFAAuthenticate.windowToken, 0)
+        var code = MFAAuthenticate.Auth1.text.toString() + MFAAuthenticate.Auth2.text.toString() + MFAAuthenticate.Auth3.text.toString() + MFAAuthenticate.Auth4.text.toString() + MFAAuthenticate.Auth5.text.toString() + MFAAuthenticate.Auth6.text.toString()
+        var mustBe = 6
+        if (MFAAuthenticate.CodeArea.visibility == View.VISIBLE) {
+            mustBe = 8
+            code = MFAAuthenticate.Code1.text.toString() + MFAAuthenticate.Code2.text.toString() + MFAAuthenticate.Code3.text.toString() + MFAAuthenticate.Code4.text.toString() + MFAAuthenticate.Code5.text.toString() + MFAAuthenticate.Code6.text.toString() + MFAAuthenticate.Code7.text.toString() + MFAAuthenticate.Code8.text.toString()
+        }
+        if (code.length==mustBe) {
+            // Eugene - Authenticate the value using auth or recovery based on length
+            hideModal()
+        } else {
+            growl("Invalid Code");
+        }
+    }
+
+    fun AuthenticateAtSetup() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(MFASetup.windowToken, 0)
+        val code = MFASetup.Setup1.text.toString() + MFASetup.Setup2.text.toString() + MFASetup.Setup3.text.toString() + MFASetup.Setup4.text.toString() + MFASetup.Setup5.text.toString() + MFASetup.Setup6.text.toString()
+        if (code.length==6) {
+            // Eugene - Authenticate the value
+            hideModal()
+            closeKeyboard()
+        } else {
+            growl("Invalid Code");
+        }
+    }
+
+    fun closeKeyboard()  {
+        val view = this.currentFocus
+        if (view != null) {
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(view.windowToken, 0)
+        }
+    }
 }

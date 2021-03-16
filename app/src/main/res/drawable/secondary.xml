@@ -5,7 +5,7 @@
 
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <corners android:radius="7dp" />
-    <solid android:color="@color/download" />
+    <solid android:color="@color/cardview_dark_background" />
     <padding
         android:left="20dp"
         android:top="0dp"

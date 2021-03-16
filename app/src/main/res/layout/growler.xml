@@ -9,7 +9,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="80dp"
-    android:background="@drawable/modal">
+    android:layout_margin="20dp"
+    android:layout_gravity="bottom"
+    android:background="@drawable/modal"
+    android:clickable="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,27 +22,26 @@
         android:weightSum="10">
 
         <ImageView
-            android:id="@+id/imageView2"
+            android:id="@+id/GrowlerIcon"
             android:layout_width="40dip"
             android:layout_height="40dip"
-            app:srcCompat="@drawable/Warning"
+            android:src="@drawable/warn"
             android:layout_weight="2"
             tools:layout_editor_absoluteX="33dp" />
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/Message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingStart="20dip"
             android:paddingEnd="20dip"
-            android:text="This is a warning"
             android:layout_weight="6"/>
 
         <ImageView
-            android:id="@+id/imageView3"
+            android:id="@+id/CloseGrowlerButton"
             android:layout_width="20dip"
             android:layout_height="20dip"
-            app:srcCompat="@drawable/closeBlack"
+            android:src="@drawable/hide"
             android:layout_weight="2"
             tools:layout_editor_absoluteX="249dp" />
 
