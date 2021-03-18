@@ -3,320 +3,338 @@
   ~ Copyright (c) 2020 NetFoundry. All rights reserved.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background">
 
     <LinearLayout
-        android:layout_gravity="center"
-        android:layout_width="match_parent"
-        android:weightSum="10"
-        android:layout_height="60dip">
-
-        <LinearLayout
-            android:id="@+id/BackIdentityDetailsButton"
-            android:gravity="center"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:layout_width="wrap_content">
-
-            <ImageView
-                android:layout_width="12dp"
-                android:layout_height="20dp"
-                android:background="@drawable/back"></ImageView>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="20dp"
-                android:lineHeight="20dp"
-                android:paddingLeft="10dp"
-                android:text="@string/back"
-                android:textColor="@color/link"
-                android:textSize="16dp"></TextView>
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/IdIdentityDetailName"
-            android:fontFamily="@font/russo_one"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:paddingLeft="10dip"
-            android:paddingEnd="10dip"
-            android:singleLine="true"
-            android:text="identity"
-            android:textAlignment="center"
-            android:textColor="@color/title"
-            android:textSize="18dp"
-            android:layout_weight="6"></TextView>
-
-        <Switch
-            android:id="@+id/IdOnOffSwitch"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:gravity="center"
-            android:visibility="visible"
-            android:layout_weight="2" />
-    </LinearLayout>
-
-    <LinearLayout
+        android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="2dp"
+        android:layout_marginBottom="40dp"
         android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:background="@color/background">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="22dp"
-                android:lineHeight="22dp"
-                android:paddingLeft="18dp"
-                android:text="@string/network"
-                android:textColor="@color/title"
-                android:textSize="18dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:layout_editor_absoluteX="0dp">
-            </TextView>
-            <TextView
-                android:id="@+id/IdDetailsNetwork"
-                android:textAlignment="gravity"
-                android:gravity="right"
-                android:textColor="@color/title"
-                android:paddingRight="18dp"
-                android:layout_gravity="center"
-                android:layout_marginStart="20dp"
-                android:background="@android:color/transparent"
-                android:layout_width="match_parent"
-                android:layout_height="22dp">
-            </TextView>
-        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:background="@color/background">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="22dp"
-                android:lineHeight="22dp"
-                android:paddingLeft="18dp"
-                android:text="@string/status"
-                android:textColor="@color/title"
-                android:textSize="18dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:layout_editor_absoluteX="0dp">
-            </TextView>
-            <TextView
-                android:id="@+id/IdDetailsStatus"
-                android:textAlignment="gravity"
-                android:gravity="right"
-                android:textColor="@color/title"
-                android:paddingRight="18dp"
-                android:layout_gravity="center"
-                android:layout_marginStart="20dp"
-                android:background="@android:color/transparent"
-                android:layout_width="match_parent"
-                android:layout_height="22dp">
-            </TextView>
-        </LinearLayout>
+            android:layout_height="60dip"
+            android:layout_gravity="center"
+            android:weightSum="10">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:background="@color/background">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="22dp"
-                android:lineHeight="22dp"
-                android:paddingLeft="18dp"
-                android:text="@string/enrollment"
-                android:textColor="@color/title"
-                android:textSize="18dp"
-                tools:layout_editor_absoluteX="0dp">
-            </TextView>
-            <TextView
-                android:id="@+id/IdDetailsEnrollment"
-                android:textAlignment="gravity"
-                android:gravity="right"
-                android:textColor="@color/title"
-                android:paddingRight="18dp"
-                android:layout_gravity="center"
-                android:layout_marginStart="20dp"
-                android:background="@android:color/transparent"
-                android:layout_width="match_parent"
-                android:layout_height="22dp">
-            </TextView>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:weightSum="10"
-            android:background="@color/background">
-            <TextView
-                android:layout_height="22dp"
-                android:layout_width="wrap_content"
-                android:layout_weight="6"
-                android:lineHeight="22dp"
-                android:paddingLeft="18dp"
-                android:text="@string/mfa"
-                android:textColor="@color/title"
-                android:textSize="18dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:layout_editor_absoluteX="0dp">
-            </TextView>
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="20dip"
-                android:gravity="right"
-                android:layout_gravity="center"
-                android:orientation="horizontal"
-                android:layout_weight="2">
-                <ImageView
-                    android:id="@+id/ShowRecoverButton"
-                    android:layout_width="20dip"
-                    android:layout_height="20dip"
-                    android:src="@drawable/recovery"
-                    android:foregroundGravity="right"
-                    ></ImageView>
-                <ImageView
-                    android:id="@+id/MfaAuthButton"
-                    android:layout_marginStart="5dip"
-                    android:layout_marginEnd="5dip"
-                    android:layout_width="20dip"
-                    android:layout_height="20dip"
-                    android:src="@drawable/mfaoff"
-                    android:foregroundGravity="right"
-                    ></ImageView>
-            </LinearLayout>
-            <Switch
-                android:id="@+id/MFASwitch"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:layout_marginEnd="18dp"
-                android:gravity="center"
-                android:visibility="visible"
-                android:layout_weight="2" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="50dip"
-            android:orientation="horizontal"
-            android:layout_gravity="center">
-
-            <TextView
-                android:id="@+id/ServiceTitle"
+                android:id="@+id/BackIdentityDetailsButton"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:fontFamily="@font/russo_one"
-                android:paddingLeft="20dp"
-                android:gravity="center_vertical"
-                android:text="@string/services"
-                android:textColor="@color/title"
-                android:textSize="18dp"></TextView>
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="right">
+                android:layout_weight="2"
+                android:gravity="center">
 
-                <EditText
-                    android:id="@+id/SearchFor"
-                    android:layout_width="match_parent"
-                    android:layout_height="30dip"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginEnd="10dp"
-                    android:layout_marginBottom="5dp"
-                    android:paddingTop="5dip"
-                    android:gravity="left"
-                    android:inputType="text"
-                    android:singleLine="true"
-                    android:paddingStart="20dip"
-                    android:paddingEnd="20dip"
-                    android:maxLines="1"
-                    android:paddingRight="50dp"
-                    android:text=""
-                    android:background="@drawable/searchbox"
-                    android:textAlignment="textStart"
-                    android:textColor="@color/title"
-                    android:textSize="14sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"></EditText>
+                <ImageView
+                    android:layout_width="12dp"
+                    android:layout_height="20dp"
+                    android:background="@drawable/back"></ImageView>
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginEnd="20dp"
-                    android:layout_marginBottom="5dp"
-                    android:gravity="center_vertical"
-                    android:alpha="0.3"
-                    android:text="@string/search"
+                    android:layout_height="20dp"
+                    android:lineHeight="20dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/back"
+                    android:textColor="@color/link"
+                    android:textSize="16dp"></TextView>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/IdIdentityDetailName"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="6"
+                android:fontFamily="@font/russo_one"
+                android:gravity="center"
+                android:paddingLeft="10dip"
+                android:paddingEnd="10dip"
+                android:singleLine="true"
+                android:text="identity"
+                android:textAlignment="center"
+                android:textColor="@color/title"
+                android:textSize="18dp"></TextView>
+
+            <Switch
+                android:id="@+id/IdOnOffSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:gravity="center"
+                android:visibility="visible" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="2dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@color/background"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="22dp"
+                    android:lineHeight="22dp"
+                    android:paddingLeft="18dp"
+                    android:text="@string/network"
                     android:textColor="@color/title"
-                    android:textSize="14dp"
+                    android:textSize="18dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:layout_editor_absoluteX="0dp"></TextView>
+
+                <TextView
+                    android:id="@+id/IdDetailsNetwork"
+                    android:layout_width="match_parent"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="20dp"
+                    android:background="@android:color/transparent"
+                    android:gravity="right"
+                    android:paddingRight="18dp"
+                    android:textAlignment="gravity"
+                    android:textColor="@color/title"></TextView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@color/background"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="22dp"
+                    android:lineHeight="22dp"
+                    android:paddingLeft="18dp"
+                    android:text="@string/status"
+                    android:textColor="@color/title"
+                    android:textSize="18dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:layout_editor_absoluteX="0dp"></TextView>
+
+                <TextView
+                    android:id="@+id/IdDetailsStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="20dp"
+                    android:background="@android:color/transparent"
+                    android:gravity="right"
+                    android:paddingRight="18dp"
+                    android:textAlignment="gravity"
+                    android:textColor="@color/title"></TextView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@color/background"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="22dp"
+                    android:lineHeight="22dp"
+                    android:paddingLeft="18dp"
+                    android:text="@string/enrollment"
+                    android:textColor="@color/title"
+                    android:textSize="18dp"
+                    tools:layout_editor_absoluteX="0dp"></TextView>
+
+                <TextView
+                    android:id="@+id/IdDetailsEnrollment"
+                    android:layout_width="match_parent"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="20dp"
+                    android:background="@android:color/transparent"
+                    android:gravity="right"
+                    android:paddingRight="18dp"
+                    android:textAlignment="gravity"
+                    android:textColor="@color/title"></TextView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@color/background"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:weightSum="10">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="22dp"
+                    android:layout_weight="6"
+                    android:lineHeight="22dp"
+                    android:paddingLeft="18dp"
+                    android:text="@string/mfa"
+                    android:textColor="@color/title"
+                    android:textSize="18dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:layout_editor_absoluteX="0dp"></TextView>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="20dip"
+                    android:layout_gravity="center"
+                    android:layout_weight="2"
+                    android:gravity="right"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/ShowRecoverButton"
+                        android:layout_width="20dip"
+                        android:layout_height="20dip"
+                        android:foregroundGravity="right"
+                        android:src="@drawable/recovery"></ImageView>
+
+                    <ImageView
+                        android:id="@+id/MfaAuthButton"
+                        android:layout_width="20dip"
+                        android:layout_height="20dip"
+                        android:layout_marginStart="5dip"
+                        android:layout_marginEnd="5dip"
+                        android:foregroundGravity="right"
+                        android:src="@drawable/mfaoff"></ImageView>
+                </LinearLayout>
+
+                <Switch
+                    android:id="@+id/MFASwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="18dp"
+                    android:layout_weight="2"
+                    android:gravity="center"
+                    android:visibility="visible" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dip"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/ServiceTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/russo_one"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="20dp"
+                    android:text="@string/services"
+                    android:textColor="@color/title"
+                    android:textSize="18dp"></TextView>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="right">
+
+                    <EditText
+                        android:id="@+id/SearchFor"
+                        android:layout_width="match_parent"
+                        android:layout_height="30dip"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginBottom="5dp"
+                        android:background="@drawable/searchbox"
+                        android:gravity="left"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:paddingStart="20dip"
+                        android:paddingTop="5dip"
+                        android:paddingEnd="20dip"
+                        android:paddingRight="50dp"
+                        android:singleLine="true"
+                        android:text=""
+                        android:textAlignment="textStart"
+                        android:textColor="@color/title"
+                        android:textSize="14sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"></EditText>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="50dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginEnd="20dp"
+                        android:layout_marginBottom="5dp"
+                        android:alpha="0.3"
+                        android:gravity="center_vertical"
+                        android:text="@string/search"
+                        android:textColor="@color/title"
+                        android:textSize="14dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"></TextView>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            </LinearLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/darkmodal">
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="100dip"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"></TextView>
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <LinearLayout
+                        android:id="@+id/IdDetailServicesList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="0dp"
+                        android:orientation="vertical"></LinearLayout>
+                </ScrollView>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-
         </LinearLayout>
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/darkmodal"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginBottom="10dp">
-
-            <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="100dip"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <LinearLayout
-                    android:id="@+id/IdDetailServicesList"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="0dp"
-                    android:orientation="vertical"></LinearLayout>
-            </ScrollView>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <Button
-            android:id="@+id/IdDetailForgetButton"
-            android:layout_width="match_parent"
-            android:layout_height="40dip"
-            android:background="@android:color/transparent"
-            android:text="@string/forget"
-            android:textColor="@color/title"></Button>
-
     </LinearLayout>
-</LinearLayout>
+
+    <Button
+        android:id="@+id/IdDetailForgetButton"
+        android:layout_width="match_parent"
+        android:layout_height="40dip"
+        android:background="@android:color/transparent"
+        android:text="@string/forget"
+        android:textColor="@color/title"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"></Button>
+</androidx.constraintlayout.widget.ConstraintLayout>
