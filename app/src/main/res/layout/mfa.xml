@@ -49,12 +49,13 @@
             android:id="@+id/QRCode"
             android:layout_width="280dip"
             android:layout_height="wrap_content"
+            android:visibility="visible"
             android:src="@drawable/qrcode" />
 
         <TextView
             android:id="@+id/Manual"
             android:layout_width="280dip"
-            android:layout_height="wrap_content"
+            android:layout_height="218dp"
             android:fontFamily="@font/open_sans"
             android:gravity="center"
             android:text="ManualCode"
@@ -137,7 +138,7 @@
                     android:orientation="horizontal">
 
                     <EditText
-                        android:id="@+id/Setup1"
+                        android:id="@+id/SetupAuthentication"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_marginEnd="2dip"
@@ -146,88 +147,9 @@
                         android:ems="10"
                         android:gravity="center"
                         android:textAlignment="gravity"
-                        android:maxLength="1"
+                        android:maxLength="6"
                         android:inputType="number"
                         android:shadowRadius="7"
-                        android:selectAllOnFocus="true"
-                        android:textSize="36sp" />
-
-                    <EditText
-                        android:id="@+id/Setup2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="@drawable/curvedform"
-                        android:ems="10"
-                        android:shadowRadius="7"
-                        android:layout_marginEnd="2dip"
-                        android:gravity="center"
-                        android:maxLength="1"
-                        android:textAlignment="gravity"
-                        android:inputType="number"
-                        android:selectAllOnFocus="true"
-                        android:textSize="36sp" />
-
-                    <EditText
-                        android:id="@+id/Setup3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="@drawable/curvedform"
-                        android:ems="10"
-                        android:shadowRadius="7"
-                        android:maxLength="1"
-                        android:layout_marginEnd="2dip"
-                        android:gravity="center"
-                        android:textAlignment="gravity"
-                        android:inputType="number"
-                        android:selectAllOnFocus="true"
-                        android:textSize="36sp" />
-
-                    <EditText
-                        android:id="@+id/Setup4"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="@drawable/curvedform"
-                        android:ems="10"
-                        android:maxLength="1"
-                        android:shadowRadius="7"
-                        android:layout_marginEnd="2dip"
-                        android:gravity="center"
-                        android:textAlignment="gravity"
-                        android:inputType="number"
-                        android:selectAllOnFocus="true"
-                        android:textSize="36sp" />
-
-                    <EditText
-                        android:id="@+id/Setup5"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="@drawable/curvedform"
-                        android:ems="10"
-                        android:shadowRadius="7"
-                        android:layout_marginEnd="2dip"
-                        android:maxLength="1"
-                        android:gravity="center"
-                        android:textAlignment="gravity"
-                        android:inputType="number"
-                        android:selectAllOnFocus="true"
-                        android:textSize="36sp" />
-
-                    <EditText
-                        android:id="@+id/Setup6"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:background="@drawable/curvedform"
-                        android:ems="10"
-                        android:shadowRadius="7"
-                        android:gravity="center"
-                        android:textAlignment="gravity"
-                        android:maxLength="1"
-                        android:inputType="number"
                         android:selectAllOnFocus="true"
                         android:textSize="36sp" />
 

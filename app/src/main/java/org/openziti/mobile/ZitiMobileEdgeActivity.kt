@@ -7,11 +7,9 @@ package org.openziti.mobile
 import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
-import android.app.Activity
 import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.Resources
-import android.inputmethodservice.Keyboard
 import android.net.Uri
 import android.net.VpnService
 import android.os.*
@@ -19,16 +17,15 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
-import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.DecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.android.synthetic.main.about.*
@@ -79,6 +76,11 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
     var log_tunneler = ""
     val version = "${BuildConfig.VERSION_NAME}(${BuildConfig.GIT_COMMIT})"
     var startTime = Date()
+    var page = 1
+    var perPage = 100
+    var sortBy = "Name"
+    var sortHow = "Asc"
+    var services:Collection<Service> = emptySet()
 
     lateinit var contextViewModel: ZitiViewModel
     internal var vpn: ZitiVPNService.ZitiVPNBinder? = null
@@ -257,6 +259,26 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
         MTUInput.text = mtu
         DNSInput.text = dns
 
+        val sortingBy: Spinner = findViewById(R.id.SortBy)
+        ArrayAdapter.createFromResource(
+                this,
+                R.array.sortby,
+                android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            sortingBy.adapter = adapter
+        }
+
+        val sortingHow: Spinner = findViewById(R.id.SortHow)
+        ArrayAdapter.createFromResource(
+                this,
+                R.array.sorthow,
+                android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            sortingHow.adapter = adapter
+        }
+
         // Dashboard Button Actions
         OffButton.setOnClickListener {
             val vb = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
@@ -363,6 +385,27 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
         BackLogsButton.setOnClickListener {
             toggleSlide(LogsPage, "advanced")
         }
+        Pages?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                page = Pages.selectedItem.toString().toInt()
+                updateServiceList()
+            }
+        }
+        SortBy?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                sortBy = SortBy.selectedItem.toString()
+                updateServiceList()
+            }
+        }
+        SortHow?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                sortHow = SortHow.selectedItem.toString()
+                updateServiceList()
+            }
+        }
         CopyLogButton.setOnClickListener {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("Logs", LogDetails.text.toString())
@@ -417,284 +460,11 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
 
         // MFA Authenticate
         IdentityDetailsPage.MfaAuthButton.setOnClickListener {
-            MFAAuthenticate.Auth1?.setText("");
-            MFAAuthenticate.Auth2?.setText("");
-            MFAAuthenticate.Auth3?.setText("");
-            MFAAuthenticate.Auth4?.setText("");
-            MFAAuthenticate.Auth5.setText("");
-            MFAAuthenticate.Auth6.setText("");
-            MFAAuthenticate.Code1.setText("");
-            MFAAuthenticate.Code2.setText("");
-            MFAAuthenticate.Code3.setText("");
-            MFAAuthenticate.Code4.setText("");
-            MFAAuthenticate.Code5.setText("");
-            MFAAuthenticate.Code6.setText("");
-            MFAAuthenticate.Code7.setText("");
-            MFAAuthenticate.Code8.setText("");
-            MFAAuthenticate.CodeArea.visibility = View.GONE
-            MFAAuthenticate.AuthArea.visibility = View.VISIBLE
-            MFAAuthenticate.ToggleCodeButton.setText("Use Code")
+            MFAAuthenticate.AuthCode?.setText("");
             showModal(MFAAuthenticate)
-        }
-        MFAAuthenticate.ToggleCodeButton.setOnClickListener {
-            if (MFAAuthenticate.AuthArea.visibility==View.VISIBLE) {
-                MFAAuthenticate.CodeArea.visibility = View.VISIBLE
-                MFAAuthenticate.AuthArea.visibility = View.GONE
-                MFAAuthenticate.ToggleCodeButton.setText("Use Auth")
-            } else {
-                MFAAuthenticate.CodeArea.visibility = View.GONE
-                MFAAuthenticate.AuthArea.visibility = View.VISIBLE
-                MFAAuthenticate.ToggleCodeButton.setText("Use Code")
-            }
         }
         MFAAuthenticate.AuthButton.setOnClickListener {
             Authenticate()
-        }
-        MFAAuthenticate.Auth1.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
-                if (MFAAuthenticate.Auth1.text.trim().length == 1) {
-                    MFAAuthenticate.Auth2.requestFocus()
-                }
-            }
-
-            override fun afterTextChanged(editable: Editable) {}
-            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
-        })
-        MFAAuthenticate.Auth1.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    Authenticate()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-        MFAAuthenticate.Auth2.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
-                if (MFAAuthenticate.Auth2.text.trim().length == 1) {
-                    MFAAuthenticate.Auth3.requestFocus()
-                }
-            }
-
-            override fun afterTextChanged(editable: Editable) {}
-            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
-        })
-        MFAAuthenticate.Auth2.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    Authenticate()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-        MFAAuthenticate.Auth3.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
-                if (MFAAuthenticate.Auth3.text.trim().length == 1) {
-                    MFAAuthenticate.Auth4.requestFocus()
-                }
-            }
-
-            override fun afterTextChanged(editable: Editable) {}
-            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
-        })
-        MFAAuthenticate.Auth3.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    Authenticate()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-        MFAAuthenticate.Auth4.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
-                if (MFAAuthenticate.Auth4.text.trim().length == 1) {
-                    MFAAuthenticate.Auth5.requestFocus()
-                }
-            }
-
-            override fun afterTextChanged(editable: Editable) {}
-            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
-        })
-        MFAAuthenticate.Auth4.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    Authenticate()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-        MFAAuthenticate.Auth5.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
-                if (MFAAuthenticate.Auth5.text.trim().length == 1) {
-                    MFAAuthenticate.Auth6.requestFocus()
-                }
-            }
-
-            override fun afterTextChanged(editable: Editable) {}
-            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
-        })
-        MFAAuthenticate.Auth5.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    Authenticate()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-        MFAAuthenticate.Auth6.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    Authenticate()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-        MFAAuthenticate.Code1.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
-                if (MFAAuthenticate.Code1.text.trim().length == 1) {
-                    MFAAuthenticate.Code2.requestFocus()
-                }
-            }
-
-            override fun afterTextChanged(editable: Editable) {}
-            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
-        })
-        MFAAuthenticate.Code1.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    Authenticate()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-        MFAAuthenticate.Code2.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
-                if (MFAAuthenticate.Code2.text.trim().length == 1) {
-                    MFAAuthenticate.Code3.requestFocus()
-                }
-            }
-
-            override fun afterTextChanged(editable: Editable) {}
-            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
-        })
-        MFAAuthenticate.Code2.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    Authenticate()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-        MFAAuthenticate.Code3.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
-                if (MFAAuthenticate.Code3.text.trim().length == 1) {
-                    MFAAuthenticate.Code4.requestFocus()
-                }
-            }
-
-            override fun afterTextChanged(editable: Editable) {}
-            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
-        })
-        MFAAuthenticate.Code3.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    Authenticate()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-        MFAAuthenticate.Code4.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
-                if (MFAAuthenticate.Code4.text.trim().length == 1) {
-                    MFAAuthenticate.Code5.requestFocus()
-                }
-            }
-
-            override fun afterTextChanged(editable: Editable) {}
-            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
-        })
-        MFAAuthenticate.Code4.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    Authenticate()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-        MFAAuthenticate.Code5.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
-                if (MFAAuthenticate.Code5.text.trim().length == 1) {
-                    MFAAuthenticate.Code6.requestFocus()
-                }
-            }
-
-            override fun afterTextChanged(editable: Editable) {}
-            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
-        })
-        MFAAuthenticate.Code5.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    Authenticate()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-        MFAAuthenticate.Code6.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
-                if (MFAAuthenticate.Code6.text.trim().length == 1) {
-                    MFAAuthenticate.Code7.requestFocus()
-                }
-            }
-
-            override fun afterTextChanged(editable: Editable) {}
-            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
-        })
-        MFAAuthenticate.Code6.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    Authenticate()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-        MFAAuthenticate.Code7.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
-                if (MFAAuthenticate.Code7.text.trim().length == 1) {
-                    MFAAuthenticate.Code8.requestFocus()
-                }
-            }
-
-            override fun afterTextChanged(editable: Editable) {}
-            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
-        })
-        MFAAuthenticate.Code7.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    Authenticate()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-        MFAAuthenticate.Code8.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    Authenticate()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
         }
         MFAAuthenticate.CloseAuthButton.setOnClickListener {
             hideModal()
@@ -707,12 +477,7 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
                 // MFASetup.QRCode.src = I need to generate it from the url so I can do this if I have the Url
                     // MFASetup.Manual.text = _identity.mfa.manualCode
                         // MFASetup.SetupMFASubTitle.text = _identity.name
-                MFASetup.Setup1.setText("")
-                MFASetup.Setup2.setText("")
-                MFASetup.Setup3.setText("")
-                MFASetup.Setup4.setText("")
-                MFASetup.Setup5.setText("")
-                MFASetup.Setup6.setText("")
+                MFASetup.SetupAuthentication.setText("")
                 MFASetup.QRCode.visibility = View.VISIBLE
                 MFASetup.Manual.visibility = View.GONE
                 MFASetup.MFACode.text = "Show Code"
@@ -745,112 +510,6 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
                 MFASetup.MFACode.text = "Show Code"
             }
         }
-        MFASetup.Setup1.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
-                if (MFASetup.Setup1.text.trim().length == 1) {
-                    MFASetup.Setup2.requestFocus()
-                }
-            }
-
-            override fun afterTextChanged(editable: Editable) {}
-            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
-        })
-        MFASetup.Setup1.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    AuthenticateAtSetup()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-        MFASetup.Setup2.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
-                if (MFASetup.Setup2.text.trim().length == 1) {
-                    MFASetup.Setup3.requestFocus()
-                }
-            }
-
-            override fun afterTextChanged(editable: Editable) {}
-            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
-        })
-        MFASetup.Setup2.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    AuthenticateAtSetup()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-        MFASetup.Setup3.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
-                if (MFASetup.Setup3.text.trim().length == 1) {
-                    MFASetup.Setup4.requestFocus()
-                }
-            }
-
-            override fun afterTextChanged(editable: Editable) {}
-            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
-        })
-        MFASetup.Setup3.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    AuthenticateAtSetup()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-        MFASetup.Setup4.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
-                if (MFASetup.Setup4.text.trim().length == 1) {
-                    MFASetup.Setup5.requestFocus()
-                }
-            }
-
-            override fun afterTextChanged(editable: Editable) {}
-            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
-        })
-        MFASetup.Setup4.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    AuthenticateAtSetup()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-        MFASetup.Setup5.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    AuthenticateAtSetup()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-        MFASetup.Setup5.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(cs: CharSequence, s: Int, b: Int, c: Int) {
-                if (MFASetup.Setup5.text.trim().length == 1) {
-                    MFASetup.Setup6.requestFocus()
-                }
-            }
-
-            override fun afterTextChanged(editable: Editable) {}
-            override fun beforeTextChanged(cs: CharSequence, i: Int, j: Int, k: Int) {}
-        })
-        MFASetup.Setup6.setOnKeyListener { view, keyCode, keyEvent ->
-            return@setOnKeyListener when (keyCode) {
-                KeyEvent.KEYCODE_ENTER -> {
-                    AuthenticateAtSetup()
-                    true
-                }
-                else -> super.onKeyUp(keyCode, keyEvent)
-            }
-        }
-
-
 
         LogDetails.movementMethod = ScrollingMovementMethod()
         ApplicationLogsButton.setOnClickListener {
@@ -875,14 +534,13 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
             // create, remove cards
             var index = 0
             for (ctx in contextList) {
-                val ctxModel = ViewModelProvider(this, ZitiContextModel.Factory(ctx)).get(ctx.name(), ZitiContextModel::class.java)
-                val identityitem = IdentityItemView(this, ctxModel)
-                // Eugene - How do I get the viewing Identity so we can use it elsewhere?
-                // _identity = I Dunno
 
-                ctxModel.name().observe(this, { n ->
-                    IdIdentityDetailName.text = n
-                })
+                /**
+                 * Setup items in the list iteself, this can use the value of the iterator
+                 */
+                val ctxModel = ViewModelProvider(this, ZitiContextModel.Factory(ctx)).get(ctx.name(), ZitiContextModel::class.java)
+                val identityitem = IdentityItemView(this, ctxModel, ctx)
+
                 ctxModel.services().observe(this, { serviceList ->
                     identityitem.count = serviceList.count()
                 })
@@ -894,20 +552,29 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
                 }
                 identityitem.server = ctx.controller()
 
+                /**
+                 * On Click listener needs to pull from a value inside of the identityitem to access the values
+                 */
                 identityitem.setOnClickListener {
-                    SearchFor.setText("");
+                    _identity = identityitem.identity
+                    SearchFor.setText("")
+                    identityitem.identityModel.name().observe(this, { n ->
+                        IdIdentityDetailName.text = n
+                    })
                     toggleSlide(IdentityDetailsPage, "identity")
-                    IdDetailsEnrollment.text = ctxModel.status().value?.toString()
-                    if (ctx.getStatus() == ZitiContext.Status.Active) {
+                    IdDetailsEnrollment.text = identityitem.identityModel.status().value?.toString()
+                    if (identityitem.identity.getStatus() == ZitiContext.Status.Active) {
                         IdOnOffSwitch.isChecked = true
+                    } else {
+                        IdOnOffSwitch.isChecked = false
                     }
                     IdOnOffSwitch.setOnCheckedChangeListener { _, state ->
-                        ctx.setEnabled(state)
+                        identityitem.identity.setEnabled(state)
                     }
-                    ctxModel.status().observe(this, { st ->
+                    identityitem.identityModel.status().observe(this, { st ->
                         IdDetailsStatus.text = st.toString()
                     })
-                    IdDetailsNetwork.text = ctx.controller()
+                    IdDetailsNetwork.text = identityitem.identity.controller()
                     IdDetailsNetwork.setOnClickListener {
                         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         val clip = ClipData.newPlainText("Network", IdDetailsNetwork.text.toString())
@@ -917,38 +584,18 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
 
                     // Eugene - When mfa is available turn it on the switch
 
-                    var sCount = 0
-                    ctxModel.services().observe(this, Observer { serviceList ->
-                        IdDetailServicesList.removeAllViews()
-                        for (service in serviceList) {
-                            sCount++
-                            val line = LineView(applicationContext)
-                            line.label = service.name
-                            line.value = service.dns?.hostname + ":" + service.dns?.port
-
-                            // Eugene - Here we need to detect if the warning icon should appear and set the message for the error
-                            // if service.warningMessage != ""
-                            // line.WarningImage.visibility = View.visible
-                            line.WarningImage.setOnClickListener {
-                                // Change to service.warning message
-                                growl("Whatever the message should pop up")
-                            }
-                            line.DetailsImage.setOnClickListener {
-                                details(service)
-                            }
-                            IdDetailServicesList.addView(line)
-                        }
+                    identityitem.identityModel.services().observe(this, Observer { serviceList ->
+                        this.services = serviceList
+                        updateServiceList()
                     })
 
                     SearchFor.addTextChangedListener(object : TextWatcher {
                         override fun afterTextChanged(s: Editable) {}
                         override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
                         override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                            // Eugene - Not sure how to change the context serviceList above in kotlin but this should iterate the list and only show
-                            // services where name or url contains the string entered.
+                            updateServiceList()
                         }
                     })
-                    ServiceTitle.text = sCount.toString() + " Services"
                     IdDetailForgetButton.setOnClickListener {
 
                         val builder = AlertDialog.Builder(this)
@@ -996,6 +643,63 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
         //checkAppList()
 
         //bindService(Intent(applicationContext, ZitiVPNService::class.java), serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    fun updateServiceList() {
+        var sCount = 0
+        IdDetailServicesList.removeAllViews()
+
+        if (sortHow == "Asc") {
+            if (sortBy == "Name") services.sortedBy { it.name }
+            else if (sortBy == "Address") services.sortedBy { it.name } // Eugene - Needs to be Addresses
+            else if (sortBy == "Port") services.sortedBy { it.name } // Eugene - Needs to be Ports
+            else if (sortBy == "Protocol") services.sortedBy { it.name } // Eugene - Needs to be Protocols
+        } else {
+            if (sortBy == "Name") services.sortedByDescending { it.name }
+            else if (sortBy == "Address") services.sortedByDescending { it.name } // Eugene - Needs to be Addresses
+            else if (sortBy == "Port") services.sortedByDescending { it.name } // Eugene - Needs to be Ports
+            else if (sortBy == "Protocol") services.sortedByDescending { it.name } // Eugene - Needs to be Protocols
+        }
+
+        var totalCount = 0
+        var totalShowing = 0
+        var searchFor = SearchFor.text
+        var startIndex = (page - 1) * perPage
+        for (service in services) {
+            totalCount++
+            if (startIndex > totalCount) {
+                val line = LineView(applicationContext)
+                line.label = service.name
+                line.value = service.dns?.hostname + ":" + service.dns?.port
+
+                // Eugene - Here we need to detect if the warning icon should appear and set the message for the error
+                // if service.warningMessage != ""
+                // line.WarningImage.visibility = View.visible
+                if (service.name.toString().toLowerCase().indexOf(searchFor.toString().toLowerCase()) >= 0) {
+                    totalShowing++;
+                    if (totalShowing < 100) {
+                        line.WarningImage.setOnClickListener {
+                            // Change to service.warning message
+                            growl("Whatever the message should pop up")
+                        }
+                        line.DetailsImage.setOnClickListener {
+                            details(service)
+                        }
+                        IdDetailServicesList.addView(line)
+                    }
+                }
+            }
+        }
+        ServiceTitle.text = totalCount.toString() + " Services"
+
+        if (page == 1) {
+            var pages = ArrayList<String>()
+            var totalPages = (totalCount / perPage) + 1;
+            for (i in 1..totalPages) {
+                pages.add(i.toString())
+            }
+            Pages.adapter = ArrayAdapter<String>(applicationContext, R.layout.spinner_text, pages)
+        }
     }
 
     override fun onPause() {
@@ -1236,24 +940,19 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
     fun Authenticate() {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(MFAAuthenticate.windowToken, 0)
-        var code = MFAAuthenticate.Auth1.text.toString() + MFAAuthenticate.Auth2.text.toString() + MFAAuthenticate.Auth3.text.toString() + MFAAuthenticate.Auth4.text.toString() + MFAAuthenticate.Auth5.text.toString() + MFAAuthenticate.Auth6.text.toString()
-        var mustBe = 6
-        if (MFAAuthenticate.CodeArea.visibility == View.VISIBLE) {
-            mustBe = 8
-            code = MFAAuthenticate.Code1.text.toString() + MFAAuthenticate.Code2.text.toString() + MFAAuthenticate.Code3.text.toString() + MFAAuthenticate.Code4.text.toString() + MFAAuthenticate.Code5.text.toString() + MFAAuthenticate.Code6.text.toString() + MFAAuthenticate.Code7.text.toString() + MFAAuthenticate.Code8.text.toString()
-        }
-        if (code.length==mustBe) {
+        var code = MFAAuthenticate.AuthCode.text.toString()
+        if (code.length!=6&&code.length!=8) {
+            growl("Invalid Code");
+        } else {
             // Eugene - Authenticate the value using auth or recovery based on length
             hideModal()
-        } else {
-            growl("Invalid Code");
         }
     }
 
     fun AuthenticateAtSetup() {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(MFASetup.windowToken, 0)
-        val code = MFASetup.Setup1.text.toString() + MFASetup.Setup2.text.toString() + MFASetup.Setup3.text.toString() + MFASetup.Setup4.text.toString() + MFASetup.Setup5.text.toString() + MFASetup.Setup6.text.toString()
+        val code = MFASetup.SetupAuthentication.text.toString()
         if (code.length==6) {
             // Eugene - Authenticate the value
             hideModal()

@@ -17,6 +17,18 @@
     <string name="platform">For Android</string>
     <string name="stop">Stop</string>
     <string name="search">search</string>
+    <string name="page">Page</string>
+    <string name="sort">Sort</string>
+    <string-array name="sortby">
+        <item>Name</item>
+        <item>Address</item>
+        <item>Port</item>
+        <item>Protocol</item>
+    </string-array>
+    <string-array name="sorthow">
+        <item>Asc</item>
+        <item>Desc</item>
+    </string-array>
 
     <!-- Menus & Generic Navigation -->
     <string name="dashboard">Dashboard</string>
