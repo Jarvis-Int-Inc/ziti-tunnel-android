@@ -109,7 +109,7 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
     var isOpen = false
     var isModal = false
     lateinit var modal:View
-    lateinit var _identity:Identity
+    lateinit var _identity:ZitiContext
 
     fun getScreenWidth(): Int {
         return Resources.getSystem().displayMetrics.widthPixels
@@ -584,7 +584,7 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
 
                     // Eugene - When mfa is available turn it on the switch
 
-                    identityitem.identityModel.services().observe(this, Observer { serviceList ->
+                    identityitem.identityModel.services().observe(this, { serviceList ->
                         this.services = serviceList
                         updateServiceList()
                     })
@@ -646,51 +646,51 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
     }
 
     fun updateServiceList() {
-        var sCount = 0
         IdDetailServicesList.removeAllViews()
 
+        val searchFor = SearchFor.text.toString()
+
+        val filtered = if (searchFor == "") services else services.filter {
+            it.name.contains(searchFor) || it.interceptConfig.toString().contains(searchFor)
+        }
+
+        val sorter: Comparator<Service> = when(sortBy) {
+            "Address" -> compareBy { it.interceptConfig?.addresses?.firstOrNull() }
+            "Port" -> compareBy { it.interceptConfig?.portRanges?.firstOrNull() }
+            "Protocol" -> compareBy{ it.interceptConfig?.protocols?.firstOrNull() }
+            else -> compareBy { it.name }
+        }
+
         if (sortHow == "Asc") {
-            if (sortBy == "Name") services.sortedBy { it.name }
-            else if (sortBy == "Address") services.sortedBy { it.name } // Eugene - Needs to be Addresses
-            else if (sortBy == "Port") services.sortedBy { it.name } // Eugene - Needs to be Ports
-            else if (sortBy == "Protocol") services.sortedBy { it.name } // Eugene - Needs to be Protocols
+            filtered.sortedWith(sorter)
         } else {
-            if (sortBy == "Name") services.sortedByDescending { it.name }
-            else if (sortBy == "Address") services.sortedByDescending { it.name } // Eugene - Needs to be Addresses
-            else if (sortBy == "Port") services.sortedByDescending { it.name } // Eugene - Needs to be Ports
-            else if (sortBy == "Protocol") services.sortedByDescending { it.name } // Eugene - Needs to be Protocols
+            filtered.sortedWith(sorter.reversed())
         }
 
-        var totalCount = 0
-        var totalShowing = 0
-        var searchFor = SearchFor.text
-        var startIndex = (page - 1) * perPage
-        for (service in services) {
-            totalCount++
-            if (startIndex > totalCount) {
-                val line = LineView(applicationContext)
-                line.label = service.name
-                line.value = service.dns?.hostname + ":" + service.dns?.port
+        val totalCount = filtered.size
+        val servicesPage = filtered.drop((page - 1) * perPage ).take(perPage)
+        val totalShowing = servicesPage.size
+        for (service in servicesPage) {
+            val line = LineView(applicationContext)
+            line.label = service.name
 
-                // Eugene - Here we need to detect if the warning icon should appear and set the message for the error
-                // if service.warningMessage != ""
-                // line.WarningImage.visibility = View.visible
-                if (service.name.toString().toLowerCase().indexOf(searchFor.toString().toLowerCase()) >= 0) {
-                    totalShowing++;
-                    if (totalShowing < 100) {
-                        line.WarningImage.setOnClickListener {
-                            // Change to service.warning message
-                            growl("Whatever the message should pop up")
-                        }
-                        line.DetailsImage.setOnClickListener {
-                            details(service)
-                        }
-                        IdDetailServicesList.addView(line)
-                    }
-                }
+            service.interceptConfig?.let {
+                line.value = "$it"
             }
+
+            // Eugene - Here we need to detect if the warning icon should appear and set the message for the error
+            // if service.warningMessage != ""
+            // line.WarningImage.visibility = View.visible
+            line.WarningImage.setOnClickListener {
+                // Change to service.warning message
+                growl("Whatever the message should pop up")
+            }
+            line.DetailsImage.setOnClickListener {
+                details(service)
+            }
+            IdDetailServicesList.addView(line)
         }
-        ServiceTitle.text = totalCount.toString() + " Services"
+        ServiceTitle.text = "$totalCount Services"
 
         if (page == 1) {
             var pages = ArrayList<String>()
@@ -831,11 +831,9 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
         // Jeremy animate in growler
         Growler.Message?.text = message
         fadeIn(Growler);
-        Handler().postDelayed({
-            runOnUiThread {
-                if (Growler.visibility == View.VISIBLE) {
-                    fadeOut(Growler)
-                }
+        Growler.postDelayed({
+            if (Growler.visibility == View.VISIBLE) {
+                fadeOut(Growler)
             }
         }, 3000)
     }
@@ -853,10 +851,10 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
     fun details(service: Service) {
         // Eugene I need real values from identity
         DetailModal.NameValue.text = service.name
-        DetailModal.UrlValue.text = service.dns?.hostname.toString()
+        DetailModal.UrlValue.text = service.interceptConfig?.addresses?.joinToString() ?: ""
         DetailModal.AddressValue.text = "192.168.1.1"
-        DetailModal.PortsValue.text = service.dns?.port.toString()
-        DetailModal.ProtocolsValue.text = "TCP, UDP"
+        DetailModal.PortsValue.text = service.interceptConfig?.portRanges?.joinToString()
+        DetailModal.ProtocolsValue.text = service.interceptConfig?.protocols?.joinToString()
         showModal(DetailModal)
     }
 
