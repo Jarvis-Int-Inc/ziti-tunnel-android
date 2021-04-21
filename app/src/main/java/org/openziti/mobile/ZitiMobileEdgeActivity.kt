@@ -24,23 +24,18 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.android.synthetic.main.about.*
 import kotlinx.android.synthetic.main.advanced.*
 import kotlinx.android.synthetic.main.authenticate.view.*
 import kotlinx.android.synthetic.main.configuration.*
 import kotlinx.android.synthetic.main.dashboard.*
-import kotlinx.android.synthetic.main.dashboard.view.*
 import kotlinx.android.synthetic.main.detailsmodal.view.*
 import kotlinx.android.synthetic.main.growler.view.*
 import kotlinx.android.synthetic.main.identities.*
 import kotlinx.android.synthetic.main.identity.*
 import kotlinx.android.synthetic.main.identity.view.*
 import kotlinx.android.synthetic.main.identityitem.view.*
-import kotlinx.android.synthetic.main.line.*
 import kotlinx.android.synthetic.main.line.view.*
 import kotlinx.android.synthetic.main.log.*
 import kotlinx.android.synthetic.main.logs.*
@@ -582,7 +577,21 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
                         Toast.makeText(applicationContext, IdDetailsNetwork.text.toString() + " has been copied to your clipboard", Toast.LENGTH_LONG).show()
                     }
 
-                    // Eugene - When mfa is available turn it on the switch
+                    IdentityDetailsPage.MFASwitch.isChecked = _identity.isMFAEnrolled()
+                    IdentityDetailsPage.MFASwitch.setOnCheckedChangeListener { _, isChecked ->
+                        if (_identity.isMFAEnrolled() && !isChecked) {
+                            // TODO prompt for code
+                            // and
+                            // _identity.removeMFA(code)
+                        } else if (!_identity.isMFAEnrolled() && isChecked) {
+                            GlobalScope.launch {
+                                val mfaEnrollment = _identity.enrollMFA()
+                                IdentityDetailsPage.post {
+                                    // TODO show MFA enrollment UI
+                                }
+                            }
+                        }
+                    }
 
                     identityitem.identityModel.services().observe(this, { serviceList ->
                         this.services = serviceList
@@ -642,7 +651,7 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
         prefs = getSharedPreferences("ziti-vpn", Context.MODE_PRIVATE)
         //checkAppList()
 
-        //bindService(Intent(applicationContext, ZitiVPNService::class.java), serviceConnection, Context.BIND_AUTO_CREATE)
+        bindService(Intent(applicationContext, ZitiVPNService::class.java), serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
     fun updateServiceList() {
@@ -681,12 +690,12 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
                 line.value = "$it"
             }
 
-            // Eugene - Here we need to detect if the warning icon should appear and set the message for the error
-            // if service.warningMessage != ""
-            // line.WarningImage.visibility = View.visible
-            line.WarningImage.setOnClickListener {
-                // Change to service.warning message
-                growl("Whatever the message should pop up")
+            val failingPQ = service.failingPostureChecks()
+            if (failingPQ.isNotEmpty()) {
+                val msg = """Failing Queries ${failingPQ.entries.joinToString{ "${it.key}:${it.value}"} }"""
+                line.WarningImage.setOnClickListener {
+                    growl(msg)
+                }
             }
             line.DetailsImage.setOnClickListener {
                 details(service)

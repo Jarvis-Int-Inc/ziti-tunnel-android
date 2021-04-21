@@ -126,7 +126,7 @@ class ZitiVPNService : VpnService() {
                 addAddress(addr, addrPrefix)
                 addRoute(dnsAddr, 32)
                 val app = application as ZitiMobileEdgeApp
-                app.routes.forEach{
+                app.routes.filter { !it.route.startsWith("127.0.0") }.forEach{
                     Log.d(TAG, "adding route ${it.route}/${it.prefix} ${it.count}")
                     addRoute(it.route, it.prefix)
                 }
