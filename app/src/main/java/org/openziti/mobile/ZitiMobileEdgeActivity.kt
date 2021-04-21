@@ -668,8 +668,11 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
         }
 
         val totalCount = filtered.size
-        val servicesPage = filtered.drop((page - 1) * perPage ).take(perPage)
+        val servicesPage = filtered; // .drop((page - 1) * perPage ).take(perPage)
         val totalShowing = servicesPage.size
+
+        IdDetailServicesList.adapter = ServiceAdapter(services)
+
         for (service in servicesPage) {
             val line = LineView(applicationContext)
             line.label = service.name
@@ -688,7 +691,7 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
             line.DetailsImage.setOnClickListener {
                 details(service)
             }
-            IdDetailServicesList.addView(line)
+            // IdDetailServicesList.addView(line)
         }
         ServiceTitle.text = "$totalCount Services"
 
