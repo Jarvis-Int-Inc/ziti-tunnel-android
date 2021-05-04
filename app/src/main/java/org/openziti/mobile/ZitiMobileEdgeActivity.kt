@@ -11,20 +11,29 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.net.Uri
+import android.net.UrlQuerySanitizer
 import android.net.VpnService
 import android.os.*
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.ScrollingMovementMethod
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.DecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.MultiFormatWriter
+import com.google.zxing.WriterException
+import com.google.zxing.common.BitMatrix
+import com.journeyapps.barcodescanner.BarcodeEncoder
 import kotlinx.android.synthetic.main.about.*
 import kotlinx.android.synthetic.main.advanced.*
 import kotlinx.android.synthetic.main.authenticate.view.*
@@ -254,26 +263,6 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
         MTUInput.text = mtu
         DNSInput.text = dns
 
-        val sortingBy: Spinner = findViewById(R.id.SortBy)
-        ArrayAdapter.createFromResource(
-                this,
-                R.array.sortby,
-                android.R.layout.simple_spinner_item
-        ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            sortingBy.adapter = adapter
-        }
-
-        val sortingHow: Spinner = findViewById(R.id.SortHow)
-        ArrayAdapter.createFromResource(
-                this,
-                R.array.sorthow,
-                android.R.layout.simple_spinner_item
-        ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            sortingHow.adapter = adapter
-        }
-
         // Dashboard Button Actions
         OffButton.setOnClickListener {
             val vb = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
@@ -380,27 +369,6 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
         BackLogsButton.setOnClickListener {
             toggleSlide(LogsPage, "advanced")
         }
-        Pages?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                page = Pages.selectedItem.toString().toInt()
-                updateServiceList()
-            }
-        }
-        SortBy?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                sortBy = SortBy.selectedItem.toString()
-                updateServiceList()
-            }
-        }
-        SortHow?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                sortHow = SortHow.selectedItem.toString()
-                updateServiceList()
-            }
-        }
         CopyLogButton.setOnClickListener {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("Logs", LogDetails.text.toString())
@@ -420,14 +388,6 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
             LogDetails.text = log_tunneler
             toggleSlide(LogPage, "logdetails")
         }
-
-        // Dashboard Buttons
-        //IdentityButton.setOnClickListener {
-        //    toggleSlide(IdentityPage, "identities")
-       // }
-        //IdentityCount.setOnClickListener {
-        //    toggleSlide(IdentityPage, "identities")
-        //}
 
         DetailModal.CloseDetailsButton.setOnClickListener {
             hideModal()
@@ -465,43 +425,17 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
             hideModal()
         }
 
-        // MFA Setup and Auth Button Actions
-        IdentityDetailsPage.MFASwitch.setOnCheckedChangeListener { _, state ->
-            if (state) {
-                // Eugene - I need these filled out so I need _identity
-                // MFASetup.QRCode.src = I need to generate it from the url so I can do this if I have the Url
-                    // MFASetup.Manual.text = _identity.mfa.manualCode
-                        // MFASetup.SetupMFASubTitle.text = _identity.name
-                MFASetup.SetupAuthentication.setText("")
-                MFASetup.QRCode.visibility = View.VISIBLE
-                MFASetup.Manual.visibility = View.GONE
-                MFASetup.MFACode.text = "Show Code"
-                showModal(MFASetup)
-            } else {
-                // Eugene - Turn off MFA for ID
-                growl("MFA is off, some services may not be available.")
-            }
-        }
-        MFASetup.AuthSetupButton.setOnClickListener {
-            AuthenticateAtSetup()
-        }
         MFASetup.CloseSetupButton.setOnClickListener {
             hideModal()
-        }
-        MFASetup.MFALink.setOnClickListener {
-            // Eugene - I need that _identity set on selected so I can have this
-            val url = "http://www.google.com" // _identity.mfa.url
-            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            startActivity(browserIntent)
         }
         MFASetup.MFACode.setOnClickListener {
             if (MFASetup.QRCode.visibility==View.VISIBLE) {
                 MFASetup.QRCode.visibility = View.GONE
-                MFASetup.Manual.visibility = View.VISIBLE
+                MFASetup.SecretCode.visibility = View.VISIBLE
                 MFASetup.MFACode.text = "Show QR"
             } else {
                 MFASetup.QRCode.visibility = View.VISIBLE
-                MFASetup.Manual.visibility = View.GONE
+                MFASetup.SecretCode.visibility = View.GONE
                 MFASetup.MFACode.text = "Show Code"
             }
         }
@@ -583,11 +517,47 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
                             // TODO prompt for code
                             // and
                             // _identity.removeMFA(code)
+                            showModal(MFAAuthenticate)
+                            // growl("MFA is off, some services may not be available.")
                         } else if (!_identity.isMFAEnrolled() && isChecked) {
                             GlobalScope.launch {
                                 val mfaEnrollment = _identity.enrollMFA()
                                 IdentityDetailsPage.post {
-                                    // TODO show MFA enrollment UI
+                                    try {
+                                        var mfr = MultiFormatWriter()
+                                        val bitMatrix: BitMatrix = mfr.encode(mfaEnrollment.provisioningUrl, BarcodeFormat.QR_CODE, 280, 280)
+                                        val barcodeEncoder = BarcodeEncoder()
+                                        val bitmap = barcodeEncoder.createBitmap(bitMatrix)
+                                        MFASetup.QRCode.setImageBitmap(bitmap)
+                                        val secret = UrlQuerySanitizer(mfaEnrollment.provisioningUrl).getValue("secret")
+                                        MFASetup.SecretCode.text = secret
+                                        MFASetup.MFALink.setOnClickListener {
+                                            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(mfaEnrollment.provisioningUrl))
+                                            startActivity(browserIntent)
+                                        }
+                                        MFASetup.AuthSetupButton.setOnClickListener {
+                                            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                                            imm.hideSoftInputFromWindow(MFASetup.windowToken, 0)
+                                            val code = MFASetup.SetupAuthentication.text.toString()
+                                            if (code.length==6) {
+                                                GlobalScope.launch {
+                                                    val statusCode = _identity.verifyMFA(code).toString()
+                                                    Toast.makeText(
+                                                        applicationContext,
+                                                        statusCode + " code",
+                                                        Toast.LENGTH_LONG
+                                                    ).show()
+                                                    hideModal()
+                                                    closeKeyboard()
+                                                }
+                                            } else {
+                                                growl("Invalid Code");
+                                            }
+                                        }
+                                    } catch (e: WriterException) {
+                                        e.printStackTrace()
+                                    }
+                                    showModal(MFASetup)
                                 }
                             }
                         }
@@ -657,6 +627,9 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
     fun updateServiceList() {
         IdDetailServicesList.removeAllViews()
 
+        sortHow = SortHow.text.toString()
+        sortBy = SortBy.text.toString()
+
         val searchFor = SearchFor.text.toString()
 
         val filtered = if (searchFor == "") services else services.filter {
@@ -702,15 +675,9 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
             }
             // IdDetailServicesList.addView(line)
         }
-        ServiceTitle.text = "$totalCount Services"
 
         if (page == 1) {
-            var pages = ArrayList<String>()
             var totalPages = (totalCount / perPage) + 1;
-            for (i in 1..totalPages) {
-                pages.add(i.toString())
-            }
-            Pages.adapter = ArrayAdapter<String>(applicationContext, R.layout.spinner_text, pages)
         }
     }
 

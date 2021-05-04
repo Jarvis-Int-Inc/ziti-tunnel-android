@@ -65,6 +65,8 @@
     <string name="network">Network</string>
     <string name="status">Status</string>
     <string name="services">Services</string>
+    <string name="filter">Filter</string>
+    <string name="sortby">and sort by</string>
     <string name="enrollmentstatus">Enrollment Status</string>
     <string name="forget">Forget This Identity</string>
 

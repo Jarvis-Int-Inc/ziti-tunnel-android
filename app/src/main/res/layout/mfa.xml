@@ -48,14 +48,14 @@
         <ImageView
             android:id="@+id/QRCode"
             android:layout_width="280dip"
-            android:layout_height="wrap_content"
+            android:layout_height="280dip"
             android:visibility="visible"
             android:src="@drawable/qrcode" />
 
         <TextView
-            android:id="@+id/Manual"
+            android:id="@+id/SecretCode"
             android:layout_width="280dip"
-            android:layout_height="218dp"
+            android:layout_height="280dp"
             android:fontFamily="@font/open_sans"
             android:gravity="center"
             android:text="ManualCode"
