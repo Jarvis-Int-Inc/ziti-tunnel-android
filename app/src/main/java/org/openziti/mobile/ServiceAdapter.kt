@@ -8,6 +8,7 @@ import android.opengl.Visibility
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import org.openziti.api.Service
@@ -20,8 +21,8 @@ class ServiceAdapter(private val services:Collection<Service>):RecyclerView.Adap
     inner class ViewHolder(listItemView: View) : RecyclerView.ViewHolder(listItemView) {
         val label = itemView.findViewById<TextView>(R.id.Label)
         val url = itemView.findViewById<TextView>(R.id.Value)
-        val warning = itemView.findViewById<TextView>(R.id.WarningImage)
-        val details = itemView.findViewById<TextView>(R.id.DetailsImage)
+        val warning = itemView.findViewById<ImageView>(R.id.WarningImage)
+        val details = itemView.findViewById<ImageView>(R.id.DetailsImage)
     }
 
     /**

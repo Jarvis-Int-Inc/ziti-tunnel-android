@@ -40,4 +40,6 @@ class ZitiViewModel: ViewModel() {
 
     fun contexts(): LiveData<Collection<ZitiContext>> = contextData
     fun stats(): LiveData<NetworkStats> = networkStatsData
+
+    fun auths() = org.openziti.android.Ziti.getAuth()
 }

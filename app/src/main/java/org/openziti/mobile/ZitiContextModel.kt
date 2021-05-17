@@ -33,9 +33,12 @@ class ZitiContextModel(val ctx: ZitiContext): ViewModel() {
         GlobalScope.launch {
             statusSub.collect {
                 statusLive.postValue(it)
-                if (it is ZitiContext.Status.Active)
-                    nameLive.postValue(ctx.getId()?.name ?: ctx.name())
 
+                when (it) {
+                    ZitiContext.Status.Active, ZitiContext.Status.Authenticating ->
+                        nameLive.postValue(ctx.getId()?.name ?: ctx.name())
+                    else -> {}
+                }
             }
         }
 

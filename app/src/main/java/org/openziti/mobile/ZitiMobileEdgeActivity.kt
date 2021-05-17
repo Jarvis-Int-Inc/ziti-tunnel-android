@@ -458,6 +458,11 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
         }
 
         contextViewModel = ViewModelProvider(this).get(ZitiViewModel::class.java)
+        contextViewModel.auths().observe(this, { ar ->
+            Log.i("Jeremy", "requesting MFA for ${ar.ztx.name()}")
+
+        })
+
         contextViewModel.contexts().observe(this, { contextList ->
             IdentityListing.removeAllViews()
             // create, remove cards
