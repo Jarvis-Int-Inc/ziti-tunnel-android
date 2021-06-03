@@ -10,13 +10,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import kotlinx.android.synthetic.main.identityitem.view.*
 import org.openziti.ZitiContext
+import org.openziti.android.ZitiContextViewModel
 
 /**
  * TODO: document your custom view class.
  */
-class IdentityItemView(context: AppCompatActivity, ctxModel: ZitiContextModel, ctx: ZitiContext) : RelativeLayout(context) {
+class IdentityItemView(context: AppCompatActivity, val identityModel: ZitiContextViewModel, ctx: ZitiContext) : RelativeLayout(context) {
 
-    private var _ctxModel: ZitiContextModel = ctxModel
     private var _ctx: ZitiContext = ctx
     private var _name: String? = ""
     private var _server: String? = ""
@@ -24,17 +24,11 @@ class IdentityItemView(context: AppCompatActivity, ctxModel: ZitiContextModel, c
     private var _isOn: Boolean = false
 
 
-    var identity: ZitiContext
-        get() = this._ctx
-        set(value) {
-            this._ctx = value;
-        }
-
-    var identityModel: ZitiContextModel
-        get() = this._ctxModel
-        set(value) {
-            this._ctxModel = value;
-        }
+//    var identity: ZitiContext
+//        get() = this._ctx
+//        set(value) {
+//            this._ctx = value;
+//        }
 
     var idname: String
         get() = this._name.toString()
@@ -75,7 +69,7 @@ class IdentityItemView(context: AppCompatActivity, ctxModel: ZitiContextModel, c
     init {
         init(null, 0)
 
-        ctxModel.name().observe(context, Observer {
+        identityModel.name.observe(context, Observer {
             IdentityName.text = it
         })
 

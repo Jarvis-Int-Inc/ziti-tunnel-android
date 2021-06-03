@@ -17,7 +17,6 @@ import android.os.*
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.ScrollingMovementMethod
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
@@ -29,6 +28,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.WriterException
@@ -51,10 +51,11 @@ import kotlinx.android.synthetic.main.logs.*
 import kotlinx.android.synthetic.main.mfa.view.*
 import kotlinx.android.synthetic.main.recovery.view.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.openziti.ZitiContext
 import org.openziti.android.Ziti
+import org.openziti.android.ZitiContextViewModel
+import org.openziti.android.ZitiViewModel
 import org.openziti.api.Service
 import org.openziti.identity.Identity
 import java.util.*
@@ -409,7 +410,7 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
         ApplicationLogsButton.setOnClickListener {
             LogTypeTitle.text = ("Application Logs")
             LogDetails.text = log_application
-            GlobalScope.launch(Dispatchers.IO) {
+            lifecycleScope.launch(Dispatchers.IO) {
                 val p = Runtime.getRuntime().exec("logcat -d -t 200 --pid=${Process.myPid()}")
                 val lines = p.inputStream.bufferedReader().readText()
 
@@ -423,12 +424,8 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
         }
 
         contextViewModel = ViewModelProvider(this).get(ZitiViewModel::class.java)
-        contextViewModel.auths().observe(this, { ar ->
-            Log.i("Jeremy", "requesting MFA for ${ar.ztx.name()}")
 
-        })
-
-        contextViewModel.contexts().observe(this, { contextList ->
+        contextViewModel.allIdentities().observe(this, { contextList ->
             IdentityListing.removeAllViews()
             // create, remove cards
             var index = 0
@@ -437,13 +434,13 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
                 /**
                  * Setup items in the list iteself, this can use the value of the iterator
                  */
-                val ctxModel = ViewModelProvider(this, ZitiContextModel.Factory(ctx)).get(ctx.name(), ZitiContextModel::class.java)
+                val ctxModel = ViewModelProvider(this, ZitiContextViewModel.Factory(ctx)).get(ctx.name(), ZitiContextViewModel::class.java)
                 val identityitem = IdentityItemView(this, ctxModel, ctx)
 
-                ctxModel.services().observe(this, { serviceList ->
+                ctxModel.services.observe(this, { serviceList ->
                     identityitem.count = serviceList.count()
                 })
-                ctxModel.status().observe(this, { state ->
+                ctxModel.status.observe(this, { state ->
                     identityitem.isOn = state != ZitiContext.Status.Disabled
                 })
                 identityitem.IdToggleSwitch.setOnCheckedChangeListener { _, state ->
@@ -455,25 +452,25 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
                  * On Click listener needs to pull from a value inside of the identityitem to access the values
                  */
                 identityitem.setOnClickListener {
-                    _identity = identityitem.identity
+                    _identity = ctx
                     SearchFor.setText("")
-                    identityitem.identityModel.name().observe(this, { n ->
+                    identityitem.identityModel.name.observe(this, { n ->
                         IdIdentityDetailName.text = n
                     })
                     toggleSlide(IdentityDetailsPage, "identity")
-                    IdDetailsEnrollment.text = identityitem.identityModel.status().value?.toString()
-                    if (identityitem.identity.getStatus() == ZitiContext.Status.Active) {
+                    IdDetailsEnrollment.text = identityitem.identityModel.status.value?.toString()
+                    if (identityitem.identityModel.status.value == ZitiContext.Status.Active) {
                         IdOnOffSwitch.isChecked = true
                     } else {
                         IdOnOffSwitch.isChecked = false
                     }
                     IdOnOffSwitch.setOnCheckedChangeListener { _, state ->
-                        identityitem.identity.setEnabled(state)
+                        ctx.setEnabled(state)
                     }
-                    identityitem.identityModel.status().observe(this, { st ->
+                    identityitem.identityModel.status.observe(this, { st ->
                         IdDetailsStatus.text = st.toString()
                     })
-                    IdDetailsNetwork.text = identityitem.identity.controller()
+                    IdDetailsNetwork.text = ctx.controller()
                     IdDetailsNetwork.setOnClickListener {
                         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         val clip = ClipData.newPlainText("Network", IdDetailsNetwork.text.toString())
@@ -490,7 +487,7 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
                             showModal(MFAAuthenticate)
                             // growl("MFA is off, some services may not be available.")
                         } else if (!_identity.isMFAEnrolled() && isChecked) {
-                            GlobalScope.launch {
+                            lifecycleScope.launch {
                                 val mfaEnrollment = _identity.enrollMFA()
                                 IdentityDetailsPage.post {
                                     try {
@@ -510,7 +507,7 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
                                             imm.hideSoftInputFromWindow(MFASetup.windowToken, 0)
                                             val code = MFASetup.SetupAuthentication.text.toString()
                                             if (code.length==6) {
-                                                GlobalScope.launch {
+                                                lifecycleScope.launch {
                                                     val statusCode = _identity.verifyMFA(code).toString()
                                                     Toast.makeText(
                                                         applicationContext,
@@ -533,7 +530,7 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
                         }
                     }
 
-                    identityitem.identityModel.services().observe(this, { serviceList ->
+                    identityitem.identityModel.services.observe(this, { serviceList ->
                         this.services = serviceList
                         updateServiceList()
                     })
@@ -583,10 +580,10 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
             }
         })
 
-        contextViewModel.stats().observe(this, {
-            setSpeed(it.downRate, DownloadSpeed, DownloadMbps)
-            setSpeed(it.upRate, UploadSpeed, UploadMbps)
-        })
+//        contextViewModel.stats().observe(this, {
+//            setSpeed(it.downRate, DownloadSpeed, DownloadMbps)
+//            setSpeed(it.upRate, UploadSpeed, UploadMbps)
+//        })
 
         prefs = getSharedPreferences("ziti-vpn", Context.MODE_PRIVATE)
         //checkAppList()
@@ -815,9 +812,9 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
         modal.visibility = View.VISIBLE
         modal.isClickable = true
         ModalBg.isClickable = true;
-        var faderBg = ObjectAnimator.ofFloat(ModalBg, "alpha", 0f, .98f).setDuration(duration.toLong())
-        var fader = ObjectAnimator.ofFloat(modal, "alpha", 0f, 1f).setDuration(duration.toLong())
-        var animateTo = ObjectAnimator.ofFloat(modal, "margin", 0f, 20f).setDuration(duration.toLong())
+        val faderBg = ObjectAnimator.ofFloat(ModalBg, "alpha", 0f, .98f).setDuration(duration.toLong())
+        val fader = ObjectAnimator.ofFloat(modal, "alpha", 0f, 1f).setDuration(duration.toLong())
+        val animateTo = ObjectAnimator.ofFloat(modal, "margin", 0f, 20f).setDuration(duration.toLong())
         fader.interpolator = DecelerateInterpolator()
         animateTo.interpolator = DecelerateInterpolator()
         fader.addListener(object : Animator.AnimatorListener {
@@ -838,7 +835,7 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
             override fun onAnimationCancel(animation: Animator) {}
             override fun onAnimationRepeat(animation: Animator) {}
         })
-        var animatorSet = AnimatorSet()
+        val animatorSet = AnimatorSet()
         animatorSet.play(animateTo).with(fader).with(faderBg)
         animatorSet.start()
     }
