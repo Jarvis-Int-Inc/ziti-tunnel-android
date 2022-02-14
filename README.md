@@ -1,7 +1,8 @@
 ## Building ziti-tunnel-android
-There being no documentation of any kind for the Android clients, I have started some starting with how to build it.
+There being no documentation of any kind for the Android clients, I have started some beginning with build instructions.
+
 Thankfully it is pretty straightforward and there were no tricks or gotchas. I have successfully built 
-the Android tunnel app on Windows 11 using Android Studio:
+the Android tunnel app on Windows 11 using this version of Android Studio:
 
 ```
 Android Studio Bumblebee | 2021.1.1 Patch 1
