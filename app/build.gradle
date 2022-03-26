@@ -99,6 +99,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.4.0'
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:${versions.androidxLifecycle}"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:${versions.androidxLifecycle}"
+    implementation files('libs\\dnsjava-3.5.0.jar')
 
     testImplementation 'org.hamcrest:hamcrest-core:2.2'
     testImplementation 'junit:junit:4.13.2'
