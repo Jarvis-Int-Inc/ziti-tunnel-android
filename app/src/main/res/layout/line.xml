@@ -18,12 +18,12 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="5"
-            android:gravity="center_vertical|start"
-            android:paddingStart="20dp"
             android:ellipsize="end"
+            android:gravity="center_vertical|start"
             android:maxLines="1"
+            android:paddingStart="20dp"
             android:textAlignment="gravity"
-            android:textColor="@color/colorText"
+            android:textColor="@color/colorTitle"
             android:textStyle="bold" />
 
         <TextView
@@ -31,13 +31,13 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="5"
+            android:ellipsize="end"
             android:gravity="center_vertical|end"
+            android:maxLines="1"
             android:paddingEnd="20dp"
             android:text="..."
-            android:ellipsize="end"
-            android:maxLines="1"
             android:textAlignment="gravity"
-            android:textColor="@color/colorText" />
+            android:textColor="@color/colorTitle" />
     </LinearLayout>
 
     <ImageView

@@ -3,23 +3,24 @@
   ~ Copyright (c) 2020 NetFoundry. All rights reserved.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="65dp"
-    android:background="@color/background">
+    android:background="#172A89">
+
         <LinearLayout
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             android:layout_width="match_parent"
             android:layout_height="65dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
                 <LinearLayout
-                    android:layout_weight="0"
                     android:layout_width="85dp"
                     android:layout_height="match_parent"
+                    android:layout_weight="0"
                     android:orientation="vertical">
 
                         <Switch
@@ -40,14 +41,14 @@
                             android:layout_weight="1"
                             android:gravity="center|top"
                             android:text="disabled"
-                            android:textSize="14dp"
-                            android:textColor="#FFFFFF"></TextView>
+                            android:textColor="#FFFFFF"
+                            android:textSize="14dp"></TextView>
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_weight="1"
                     android:layout_width="fill_parent"
                     android:layout_height="65dp"
+                    android:layout_weight="1"
                     android:orientation="vertical">
 
                         <TextView
@@ -55,9 +56,9 @@
                             android:layout_width="fill_parent"
                             android:layout_height="15dp"
                             android:layout_weight="1"
-                            android:singleLine="true"
                             android:gravity="bottom|left"
                             android:lineHeight="15dp"
+                            android:singleLine="true"
                             android:text="MyIdName"
                             android:textColor="@color/title"
                             android:textSize="18dp">
@@ -69,10 +70,10 @@
                             android:layout_width="fill_parent"
                             android:layout_height="12dp"
                             android:layout_weight="1"
-                            android:gravity="top|left"
-                            android:singleLine="true"
                             android:alpha="0.4"
+                            android:gravity="top|left"
                             android:lineHeight="55dp"
+                            android:singleLine="true"
                             android:text="server:8080"
                             android:textColor="@color/title"
                             android:textSize="14dp">
@@ -81,11 +82,13 @@
 
 
                 </LinearLayout>
+
                 <LinearLayout
-                    android:layout_weight="0"
                     android:layout_width="85dp"
                     android:layout_height="65dp"
+                    android:layout_weight="0"
                     android:orientation="vertical">
+
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="match_parent"
                             android:layout_height="35dp">
@@ -101,6 +104,7 @@
                                     android:textAlignment="gravity"
                                     app:layout_constraintEnd_toEndOf="parent"
                                     app:layout_constraintTop_toTopOf="parent"></ImageView>
+
                                 <TextView
                                     android:id="@+id/ServiceCount"
                                     android:layout_width="match_parent"
@@ -122,16 +126,17 @@
                             android:gravity="center|top"
                             android:text="services"
                             android:textAlignment="center"
-                            android:textSize="14dp"
-                            android:textColor="#FFFFFF"></TextView>
+                            android:textColor="#FFFFFF"
+                            android:textSize="14dp"></TextView>
 
                 </LinearLayout>
+
                 <ImageView
-                    android:layout_weight="0"
                     android:layout_width="12dp"
                     android:layout_height="24dp"
-                    android:layout_marginEnd="16dp"
                     android:layout_marginTop="18dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_weight="0"
                     android:background="@drawable/next"
                     android:clickable="true"
                     app:layout_constraintBottom_toBottomOf="parent"

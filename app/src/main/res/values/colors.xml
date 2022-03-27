@@ -12,13 +12,15 @@
 
     <color name="download">#0068F9</color>
     <color name="upload">#F4044D</color>
-    <color name="subTitle">#638190</color>
+    <color name="subTitle">#EEEEEE</color>
     <color name="title">#FFFFFF</color>
     <color name="areaTitle">#262A41</color>
     <color name="label">#0F0F23</color>
-    <color name="background">#0F0F23</color>
-    <color name="link">#3c69b3</color>
+    <color name="background">#223CCF</color>
+    <color name="highlight">#172A89</color>
+    <color name="link">#ffffff</color>
     <color name="border">#EFF2F4</color>
     <color name="black">#000000</color>
     <color name="green">#4CD964</color>
+
 </resources>

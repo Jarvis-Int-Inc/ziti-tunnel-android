@@ -6,9 +6,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background">
+    android:background="@color/background"
+    android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/BackLogsButton"
@@ -49,11 +50,11 @@
             android:id="@+id/LogsLabel"
             android:layout_width="match_parent"
             android:layout_height="40dp"
+            android:fontFamily="@font/russo_one"
             android:paddingLeft="18dp"
             android:text="@string/logs"
             android:textColor="@color/title"
             android:textSize="26dp"
-            android:fontFamily="@font/russo_one"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -69,7 +70,7 @@
             android:id="@+id/PacketLogsButton"
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:background="@color/background">
+            android:background="@color/highlight">
 
             <ImageView
                 android:layout_width="12dp"
@@ -99,15 +100,15 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/logspacketsub"
             android:padding="18dp"
+            android:text="@string/logspacketsub"
             android:textColor="@color/subTitle"></TextView>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/ApplicationLogsButton"
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:background="@color/background">
+            android:background="@color/highlight">
 
             <ImageView
                 android:layout_width="12dp"
@@ -137,8 +138,8 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/logsapplicationsub"
             android:padding="18dp"
+            android:text="@string/logsapplicationsub"
             android:textColor="@color/subTitle"></TextView>
     </LinearLayout>
 </LinearLayout>

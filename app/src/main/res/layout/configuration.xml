@@ -6,9 +6,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background">
+    android:background="@color/background"
+    android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -17,14 +18,14 @@
 
         <ImageView
             android:id="@+id/BackConfigButton"
-            android:visibility="gone"
             android:layout_width="12dp"
             android:layout_height="20dp"
             android:layout_marginStart="16dp"
             android:background="@drawable/back"
+            android:clickable="true"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:clickable="true"
             app:layout_constraintTop_toTopOf="parent"></ImageView>
 
         <TextView
@@ -48,8 +49,8 @@
             android:layout_width="104dp"
             android:layout_height="19dp"
             android:layout_marginEnd="24dp"
-            android:gravity="right"
             android:clickable="true"
+            android:gravity="right"
             android:lineHeight="20dp"
             android:paddingLeft="36dp"
             android:text="@string/save"
@@ -73,11 +74,11 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="40dp"
+            android:fontFamily="@font/russo_one"
             android:paddingLeft="18dp"
             android:text="@string/tunnel"
             android:textColor="@color/title"
             android:textSize="26dp"
-            android:fontFamily="@font/russo_one"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"></TextView>
 
@@ -92,9 +93,10 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="60dp"
+            android:background="@color/background"
             android:gravity="center"
-            android:orientation="horizontal"
-            android:background="@color/background">
+            android:orientation="horizontal">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="22dp"
@@ -105,28 +107,28 @@
                 android:textSize="18dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:layout_editor_absoluteX="0dp">
-            </TextView>
+                tools:layout_editor_absoluteX="0dp"></TextView>
+
             <TextView
                 android:id="@+id/IPInput"
-                android:textAlignment="gravity"
-                android:gravity="right"
-                android:textColor="@color/title"
-                android:paddingRight="18dp"
+                android:layout_width="match_parent"
+                android:layout_height="22dp"
                 android:layout_gravity="center"
                 android:layout_marginStart="20dp"
                 android:background="@android:color/transparent"
-                android:layout_width="match_parent"
-                android:layout_height="22dp">
-            </TextView>
+                android:gravity="right"
+                android:paddingRight="18dp"
+                android:textAlignment="gravity"
+                android:textColor="@color/title"></TextView>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="60dp"
+            android:background="@color/background"
             android:gravity="center"
-            android:orientation="horizontal"
-            android:background="@color/background">
+            android:orientation="horizontal">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="22dp"
@@ -137,28 +139,28 @@
                 android:textSize="18dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:layout_editor_absoluteX="0dp">
-            </TextView>
+                tools:layout_editor_absoluteX="0dp"></TextView>
+
             <TextView
                 android:id="@+id/SubNetInput"
-                android:textAlignment="gravity"
-                android:gravity="right"
-                android:layout_gravity="center"
-                android:textColor="@color/title"
-                android:paddingRight="18dp"
-                android:background="@android:color/transparent"
-                android:layout_marginStart="20dp"
                 android:layout_width="match_parent"
-                android:layout_height="22dp">
-            </TextView>
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="20dp"
+                android:background="@android:color/transparent"
+                android:gravity="right"
+                android:paddingRight="18dp"
+                android:textAlignment="gravity"
+                android:textColor="@color/title"></TextView>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="60dp"
+            android:background="@color/background"
             android:gravity="center"
-            android:orientation="horizontal"
-            android:background="@color/background">
+            android:orientation="horizontal">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="22dp"
@@ -169,28 +171,27 @@
                 android:textSize="18dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:layout_editor_absoluteX="0dp">
-            </TextView>
+                tools:layout_editor_absoluteX="0dp"></TextView>
+
             <TextView
                 android:id="@+id/MTUInput"
-                android:textAlignment="gravity"
-                android:gravity="right"
-                android:textColor="@color/title"
-                android:paddingRight="18dp"
-                android:layout_gravity="center"
-                android:background="@android:color/transparent"
-                android:layout_marginStart="20dp"
                 android:layout_width="match_parent"
-                android:layout_height="22dp">
-            </TextView>
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="20dp"
+                android:background="@android:color/transparent"
+                android:gravity="right"
+                android:paddingRight="18dp"
+                android:textAlignment="gravity"
+                android:textColor="@color/title"></TextView>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="60dp"
+            android:background="@color/background"
             android:gravity="center"
-            android:orientation="horizontal"
-            android:background="@color/background">
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -206,15 +207,14 @@
 
             <TextView
                 android:id="@+id/DNSInput"
-                android:layout_marginStart="20dp"
-                android:textAlignment="gravity"
-                android:gravity="right"
-                android:layout_gravity="center"
-                android:background="@android:color/transparent"
-                android:textColor="@color/title"
                 android:layout_width="match_parent"
-                android:layout_height="22dp">
-            </TextView>
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="20dp"
+                android:background="@android:color/transparent"
+                android:gravity="right"
+                android:textAlignment="gravity"
+                android:textColor="@color/title"></TextView>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
