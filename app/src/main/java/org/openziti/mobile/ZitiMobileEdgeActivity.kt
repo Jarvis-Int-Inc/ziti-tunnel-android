@@ -397,6 +397,7 @@ class ZitiMobileEdgeActivity : AppCompatActivity() {
                             val line = LineView(applicationContext)
                             line.label = service.name
                             line.value = service.interceptConfig?.toString() ?: ""
+                            line.service = service
                             IdDetailServicesList.addView(line)
                         }
                     })
