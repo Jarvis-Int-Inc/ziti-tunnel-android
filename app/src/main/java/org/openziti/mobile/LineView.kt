@@ -6,6 +6,7 @@ package org.openziti.mobile
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.RelativeLayout
@@ -86,11 +87,14 @@ class LineView : RelativeLayout {
     constructor(context: Context) : super(context) {
         init(null, 0)
         Label.setOnClickListener {
+            val intent = Intent(context, ServiceDetailsActivity::class.java)
+            /*
             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("Label", Label.text.toString())
             clipboard.setPrimaryClip(clip)
             val content = Label.text.toString() + " has been copied to your clipboard"
             Toast.makeText(context, content, Toast.LENGTH_LONG).show()
+             */
         }
         Value.setOnClickListener {
             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager

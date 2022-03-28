@@ -5,6 +5,7 @@
 package org.openziti.mobile.net
 
 import android.util.Log
+import android.widget.Toast
 import org.openziti.net.dns.DNSResolver
 import org.pcap4j.packet.DnsPacket
 import org.pcap4j.packet.DnsRDataA
@@ -140,8 +141,9 @@ class DNS(val dnsResolver: DNSResolver) {
                     // This is ugly. But currently Noah's DNS returns its own IP when it denies
                     // a domain name. Thus if the IP (and it will always be IPV4) is equal to
                     // Noah's, we can log it as a block event.
-                    if (a.address.hostAddress.equals("3.237.5.111"))
+                    if (a.address.hostAddress.equals("3.237.5.111")) {
                         Log.d("DNS", "DN $name blocked")
+                    }
 
                     return a.address
                 }
